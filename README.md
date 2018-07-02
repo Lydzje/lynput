@@ -1,5 +1,5 @@
 # Lynput (in development)
-**Lynput** is an input library for LÖVE that  makes input handling very intuitive.
+**Lynput** is an input library for LÖVE that  makes input handling very intuitive 💙.
 
 ## Lynput devices supported
 - [x] Keyboard pressed, released and holding events
