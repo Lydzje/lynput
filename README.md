@@ -14,7 +14,12 @@
 - [ ] ...
 
 ## Lynput?
-    if not creativity then
-        name = Lydzje + input
-        print(name)
-    end -- if not creativity
+```lua
+if not creativity then
+    name = Lydzje + input
+    print(name)
+end -- if not creativity
+```
+> Output:
+>
+> Lynput
