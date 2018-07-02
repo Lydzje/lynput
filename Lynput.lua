@@ -67,8 +67,8 @@ local function isInputValid(input)
   end
 
   -- TODO: Mouse buttons
-  -- TODO: GamePad axes
-  -- TODO: GamePad buttons
+  -- TODO: Gamepad axes
+  -- TODO: Gamepad buttons
   return false
 end
 
@@ -117,7 +117,7 @@ end
 local function isDown(self, action)
   for i,v in ipairs(self[action].inputs) do
     -- TODO: Mouse buttons
-    -- TODO: Joystick buttons
+    -- TODO: Gamepad buttons
     if love.keyboard.isDown(v) then
       return true
     end -- if isDown
