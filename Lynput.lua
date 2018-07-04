@@ -4,6 +4,8 @@ Object = require("lib.classic")
 Lynput = Object:extend()
 
 Lynput.s_lynputs = {}
+Lynput.s_idCount = 0
+Lynput.s_count = 0
 
 Lynput.s_reserved_words = {
   "and", "break", "do", "else", "elseif", "end", "false", "for", 
@@ -12,6 +14,7 @@ Lynput.s_reserved_words = {
 }
 
 -- FIXME: Input names have to be unique, conflict with keyboard
+-- May add a preffix like ml for l or mx1 for x1, or mouseL for l
 Lynput.s_mouse_buttons = {
   "l", "m", "r", "wd", "wu", "x1", "x2"
 }
@@ -21,6 +24,7 @@ Lynput.s_gamepad_axes = {
 }
 
 -- FIXME: Input names have to be unique, conflict with keyboard
+-- May add a preffix like gstart for start or ga for a, or gamepad_a for a
 Lynput.s_gamepad_buttons = {
   "a", "b", "x", "y", "back", "guide", "start", "leftstick", 
   "rightstick", "leftshoulder", "rightshoulder", "dppup", "dpdown", 
@@ -30,7 +34,11 @@ Lynput.s_gamepad_buttons = {
 
 function Lynput:new()
   self.inputsSet = {}
-  table.insert( Lynput.s_lynputs, self)
+
+  self.id = tostring(Lynput.s_idCount)
+  Lynput.s_lynputs[self.id] = self
+  Lynput.s_idCount = Lynput.s_idCount + 1
+  Lynput.s_count = Lynput.s_count + 1
 end
 
 
@@ -69,15 +77,17 @@ local function isInputValid(input)
   -- TODO: Mouse buttons
   -- TODO: Gamepad axes
   -- TODO: Gamepad buttons
+  -- TODO: Touch screen
   return false
 end
+
 
 -- TODO: unbinding
 function Lynput:bind(action, input)
   -- TODO: input has to be an array of inputs
   if isActionValid(action) then
     if isInputValid(input) then
-      -- FIXME: Pressed and released do not work for joysticks axes
+      -- FIXME: Pressed and released do not work for movement inputs
       if not self[action] then
         -- action set
         self[action] = {}
@@ -118,13 +128,21 @@ local function isDown(self, action)
   for i,v in ipairs(self[action].inputs) do
     -- TODO: Mouse buttons
     -- TODO: Gamepad buttons
+    -- TODO: Touch screen
     if love.keyboard.isDown(v) then
       return true
     end -- if isDown
-  end -- for each input
+  end -- for each inputs
 
   return false
 end
+
+
+function Lynput:remove()
+  Lynput.s_lynputs[self.id] = nil
+  Lynput.s_count = Lynput.s_count - 1
+end
+
 
 
 function Lynput:update()
@@ -141,22 +159,22 @@ end
 -- KEYBOARD CALLBACKS
 -----------------------------
 function Lynput.key_pressed(key)
-  for i,v in ipairs(Lynput.s_lynputs) do
+  for k,v in pairs(Lynput.s_lynputs) do
     if v.inputsSet[key] then
       action = v.inputsSet[key]
       v[action].pressed = true
       v[action].released = false
     end -- key is set
-  end -- for each lynput
+  end -- for each s_lynputs
 end
 
 
 function Lynput.key_released(key)
-  for i,v in ipairs(Lynput.s_lynputs) do
+  for k,v in pairs(Lynput.s_lynputs) do
     if v.inputsSet[key] then
       action = v.inputsSet[key]
       v[action].released = true
       v[action].pressed = false
     end -- key is set
-  end -- for each lynput
+  end -- for each s_lynputs
 end
