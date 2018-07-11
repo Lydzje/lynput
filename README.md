@@ -3,7 +3,8 @@
 
 ## Lynput devices supported
 - [x] Keyboard pressed, released and holding events
-- [ ] Mouse...
+- [x] Mouse pressed, released and holding events
+- [ ] Mouse movement
 - [ ] Gamepad
 - [ ] Touch screen
 

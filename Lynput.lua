@@ -13,10 +13,12 @@ Lynput.s_reserved_words = {
   "return", "then", "true", "until", "while"
 }
 
--- FIXME: Input names have to be unique, conflict with keyboard
--- May add a preffix like ml for l or mx1 for x1, or mouseL for l
 Lynput.s_mouse_buttons = {
-  "l", "m", "r", "wd", "wu", "x1", "x2"
+  lmb="1", rmb="2", mmb="3", mb4="x1", mb5="x2"
+}
+
+Lynput.s_mouse_axes = {
+  "wd", "wu"
 }
 
 Lynput.s_gamepad_axes = {
@@ -68,13 +70,12 @@ end
 
 
 local function isInputValid(input)
-  -- TODO: Check smaller data first
-  
-  if love.keyboard.getScancodeFromKey(input) then
-    return true
-  end
+  if Lynput.s_mouse_buttons[input] then
+    return true, "mButton"
+  elseif love.keyboard.getScancodeFromKey(input) then
+    return true, "keyboard"
+  end -- if input exists
 
-  -- TODO: Mouse buttons
   -- TODO: Gamepad axes
   -- TODO: Gamepad buttons
   -- TODO: Touch screen
@@ -85,56 +86,43 @@ end
 -- TODO: unbinding
 function Lynput:bind(action, input)
   -- TODO: input has to be an array of inputs
-  if isActionValid(action) then
-    if isInputValid(input) then
-      -- FIXME: Pressed and released do not work for movement inputs
+  local actionValid = isActionValid(action)
+  local inputValid, type = isInputValid(input)
+  if actionValid and inputValid then
+    local input = input
+    if type == "mButton" then
+      input = Lynput.s_mouse_buttons[input]
+    end -- if mButton
+    
+    -- FIXME: Pressed and released do not work for movement inputs
       if not self[action] then
-        -- action set
+        -- action not set yet
         self[action] = {}
         self[action].pressed = false
         self[action].released = false
         self[action].holding = false
         self[action].inputs = {}
 
-        if self.inputsSet[input] then
-          -- input in use
-          actionSet = self.inputsSet[input]
-          i = 1
-          found = false
-          len = #(self.actionSet.inputs)
-          while i <= len and not found do
-            if self.actionSet.inputs[i] == input then
-              found = true
-              -- removed input in the action it was assigned to
-              self.actionSet.inputs[i] = nil
-            end -- if input found
-          end -- while i<=len and not found
-        end -- if input already in use
-      end -- if action not set
-      
-      self.inputsSet[input] = action
-      len = #(self[action].inputs)
-      self[action].inputs[len+1] = input
-    else
-      print(debug.traceback())
-    end -- if isInputValid
-  else
-    print(debug.traceback())
-  end -- if isActionValid
-end
-
-
-local function isDown(self, action)
-  for i,v in ipairs(self[action].inputs) do
-    -- TODO: Mouse buttons
-    -- TODO: Gamepad buttons
-    -- TODO: Touch screen
-    if love.keyboard.isDown(v) then
-      return true
-    end -- if isDown
-  end -- for each inputs
-
-  return false
+      if self.inputsSet[input] then
+        -- input in use
+        actionSet = self.inputsSet[input]
+        i = 1
+        found = false
+        len = #(self[actionSet].inputs)
+        while i <= len and not found do
+          if self[actionSet].inputs[i] == input then
+            found = true
+            -- removed input in the action it was assigned to
+            self[actionSet].inputs[i] = nil
+          end -- if input found
+        end -- while input not found
+      end -- if input already in use
+    end -- if action not set
+    
+    self.inputsSet[input] = action
+    len = #(self[action].inputs)
+    self[action].inputs[len+1] = input
+  end -- if action and input are valid
 end
 
 
@@ -144,13 +132,11 @@ function Lynput:remove()
 end
 
 
-
 function Lynput:update()
   for k,v in pairs(self.inputsSet) do
     -- FIXME: Only works if lynput is updated after input processing
     self[v].pressed = false
     self[v].released = false
-    self[v].holding = isDown(self, v)
   end
 end
 
@@ -163,6 +149,7 @@ function Lynput.key_pressed(key)
     if v.inputsSet[key] then
       action = v.inputsSet[key]
       v[action].pressed = true
+      v[action].holding = true
       v[action].released = false
     end -- key is set
   end -- for each s_lynputs
@@ -175,6 +162,36 @@ function Lynput.key_released(key)
       action = v.inputsSet[key]
       v[action].released = true
       v[action].pressed = false
+      v[action].holding = false
     end -- key is set
+  end -- for each s_lynputs
+end
+
+
+-----------------------------
+-- MOUSE CALLBACKS
+-----------------------------
+function Lynput.mouse_pressed(button)
+  button = tostring(button)
+  for k,v in pairs(Lynput.s_lynputs) do
+    if v.inputsSet[button] then
+      action = v.inputsSet[button]
+      v[action].pressed = true
+      v[action].holding = true
+      v[action].released = false
+    end -- button is set
+  end -- for each s_lynputs
+end
+
+
+function Lynput.mouse_released(button)
+  button = tostring(button)
+  for k,v in pairs(Lynput.s_lynputs) do
+    if v.inputsSet[button] then
+      action = v.inputsSet[button]
+      v[action].released = true
+      v[action].pressed = false
+      v[action].holding = false
+    end -- button is set
   end -- for each s_lynputs
 end
