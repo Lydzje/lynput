@@ -46,6 +46,7 @@ end
 
 local function isActionValid(action)
   if type(action) ~= "string" then
+    -- TODO: "Could not bind INPUT TO ACTION"
     error(
       "Could not bind action->" .. action .. 
       " to input, the action is not a string"
@@ -57,6 +58,7 @@ local function isActionValid(action)
 
   for i,v in ipairs(Lynput.s_reserved_words) do
     if v == action then
+    -- TODO: "Could not bind INPUT TO ACTION"
       error(
         "Could not bind action->" .. action .. 
         " to input, the action name is a reserved word"
@@ -83,7 +85,6 @@ local function isInputValid(input)
 end
 
 
--- TODO: unbinding
 function Lynput:bind(action, input)
   -- TODO: input has to be an array of inputs
   local actionValid = isActionValid(action)
@@ -123,6 +124,32 @@ function Lynput:bind(action, input)
     len = #(self[action].inputs)
     self[action].inputs[len+1] = input
   end -- if action and input are valid
+end
+
+
+function Lynput:unbind(action, input)
+  -- TODO: input has to be an array of inputs
+  if self[action] then
+    if self.inputsSet[input] then
+      self.inputsSet[input] = nil
+      for i,v in ipairs(self[action].inputs) do
+        if v == input then
+          self[action].inputs[i] = nil
+          break
+        end -- if input found
+      end -- for each input assigned to action
+    else
+      error(
+      "Could not unbind input->" .. input .. 
+      " to action->" .. action .. ", the input is not set"
+      )
+    end -- if input is set
+  else
+    error(
+      "Could not unbind input->" .. input .. 
+      " to action->" .. action .. ", the action is not set"
+    )
+  end -- if action is set
 end
 
 
