@@ -7,12 +7,13 @@ function love.load()
   lynput:bind("pressing", "p")
   lynput:bind("releasing", "r")
   lynput:bind("holding", "h")
-  lynput:unbind("holding", "h")
-
+  
   -- mouse buttons
   lynput:bind("pressing", "lmb")
   lynput:bind("releasing", "rmb")
   lynput:bind("holding", "mmb")
+  
+  lynput:unbindAll("holding")
 end
 
 

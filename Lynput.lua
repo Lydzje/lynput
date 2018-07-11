@@ -153,6 +153,22 @@ function Lynput:unbind(action, input)
 end
 
 
+function Lynput:unbindAll(action)
+  if self[action] then
+    local len = #self[action].inputs
+    for i=1,len do
+      local input = self[action].inputs[i]
+      self.inputsSet[input] = nil
+      self[action].inputs[i] = nil
+    end -- for each input assigned to action
+  else
+    error(
+      "Could not remove action->" .. action .. ", the action is not set"
+    )
+  end -- if action is set
+end
+
+
 function Lynput:remove()
   Lynput.s_lynputs[self.id] = nil
   Lynput.s_count = Lynput.s_count - 1

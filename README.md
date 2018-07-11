@@ -10,7 +10,7 @@
 
 ## Lynput features
 - [x] Multiple independent input objects
-- [x] Easy and intuitive input binding
+- [x] Easy and intuitive input binding and unbindig
 - [ ] Saving and loading input configuration files
 - [ ] ...
 
