@@ -53,12 +53,12 @@ local function isActionValid(action)
     )
     return false
   end -- if not string
-
+  
   -- TODO: Not valid if contains spaces or reserved characters
-
+  
   for i,v in ipairs(Lynput.s_reserved_words) do
     if v == action then
-    -- TODO: "Could not bind INPUT TO ACTION"
+      -- TODO: "Could not bind INPUT TO ACTION"
       error(
         "Could not bind action->" .. action .. 
         " to input, the action name is a reserved word"
@@ -66,7 +66,7 @@ local function isActionValid(action)
       return false
     end -- if s_reserved_word
   end -- for each s_reserved_words
-
+  
   return true
 end
 
@@ -77,11 +77,17 @@ local function isInputValid(input)
   elseif love.keyboard.getScancodeFromKey(input) then
     return true, "keyboard"
   end -- if input exists
-
+  
   -- TODO: Gamepad axes
   -- TODO: Gamepad buttons
   -- TODO: Touch screen
   return false
+end
+
+
+function Lynput:remove()
+  Lynput.s_lynputs[self.id] = nil
+  Lynput.s_count = Lynput.s_count - 1
 end
 
 
@@ -163,15 +169,22 @@ function Lynput:unbindAll(action)
     end -- for each input assigned to action
   else
     error(
-      "Could not remove action->" .. action .. ", the action is not set"
+      "Could not unbind all inputs in action->" .. action 
+      .. ", the action is not set"
     )
   end -- if action is set
 end
 
 
-function Lynput:remove()
-  Lynput.s_lynputs[self.id] = nil
-  Lynput.s_count = Lynput.s_count - 1
+function Lynput:removeAction(action)
+  if self[action] then
+    self:unbindAll(action)
+    self[action] = nil
+  else
+    error(
+      "Could not remove action->" .. action .. ", the action is not set"
+    )
+  end -- if action is set
 end
 
 
