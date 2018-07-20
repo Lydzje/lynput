@@ -1,5 +1,5 @@
 -- TODO: Implementation without libraries
-Object = require("lib.classic")
+Object = require("lib.classic.classic")
 
 Lynput = Object:extend()
 
