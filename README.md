@@ -1,4 +1,6 @@
 # Lynput (in development) :construction::construction:
+[![LÖVE VERSION](https://img.shields.io/badge/L%C3%96VE-11.1-%23E64A99.svg)](https://love2d.org/wiki/11.1)
+
 **Lynput** is an input library for LÖVE that  makes input handling very intuitive 💙.
 
 ## Lynput devices supported
