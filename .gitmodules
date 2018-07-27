@@ -1,0 +1,3 @@
+[submodule "lib/classic"]
+	path = lib/classic
+	url = git@github.com:Lydzje/classic.git
