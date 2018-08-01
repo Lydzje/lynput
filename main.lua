@@ -3,15 +3,9 @@ function love.load()
   lynput = Lynput()
   lynput:bind("exit", "escape")
   
-  -- keyboard
-  lynput:bind("pressing", "p")
-  lynput:bind("releasing", "r")
-  lynput:bind("holding", "h")
-  
-  -- mouse buttons
-  lynput:bind("pressing", "lmb")
-  lynput:bind("releasing", "rmb")
-  lynput:bind("holding", "mmb")
+  lynput:bind("pressing", {"p", "lmb"})
+  lynput:bind("releasing", {"r", "rmb"})
+  lynput:bind("holding", {"h", "mmb"})
   
   lynput:unbindAll("holding")
 end
@@ -21,12 +15,16 @@ function love.update(dt)
   if lynput.exit.released then
     love.event.quit()
   end -- if exit
+
   if lynput.pressing.pressed then
     print("Pressing")
   end -- if pressing
+
   if lynput.releasing.released then
     print("Releasing")
+    lynput:unbind("releasing", {"r", "rmb"})
   end -- if releasing
+
   if lynput.holding.holding then
     print("Holding")
   end -- if holding
@@ -44,20 +42,20 @@ end
 -- CALLBACKS
 -----------------------------
 function love.keypressed(key)
-  Lynput.key_pressed(key)
+  Lynput.onkeypressed(key)
 end
 
 
 function love.keyreleased(key)
-  Lynput.key_released(key)
+  Lynput.onkeyreleased(key)
 end
 
 
 function love.mousepressed(x, y, button, istouch)
-  Lynput.mouse_pressed(button)
+  Lynput.onmousepressed(button)
 end
 
 
 function love.mousereleased(x, y, button, istouch)
-  Lynput.mouse_released(button)
+  Lynput.onmousereleased(button)
 end
