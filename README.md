@@ -6,8 +6,9 @@
 ## Devices supported
 - [X] Keyboard
 - [x] Mouse pressed, released and holding events
-- [X] Gamepad
+- [X] Gamepad buttons
 - [ ] Mouse movement
+- [ ] Gamepad joysticks and trigers
 - [ ] Touch screen
 
 ## Features
