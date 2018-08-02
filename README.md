@@ -7,7 +7,7 @@
 - [X] Keyboard
 - [x] Mouse pressed, released and holding events
 - [X] Gamepad buttons
-- [ ] Mouse movement
+- [ ] Mouse position and movement
 - [ ] Gamepad joysticks and trigers
 - [ ] Touch screen
 
@@ -16,6 +16,11 @@
 - [x] Easy and intuitive input binding and unbindig
 - [ ] Saving and loading input configuration files
 - [ ] ...
+
+## Lynput gamepad map
+Analog inputs are not implemented yet, that's why they do not appear in the map that follows.
+
+![xbox_360_controller_map](res/xbox_360_controller.png)
 
 ## Lynput?
 ```lua
