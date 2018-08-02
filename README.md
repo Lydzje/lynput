@@ -4,10 +4,10 @@
 **Lynput** is an input library for LÖVE that  makes input handling very intuitive 💙.
 
 ## Devices supported
-- [x] Keyboard pressed, released and holding events
+- [X] Keyboard
 - [x] Mouse pressed, released and holding events
+- [X] Gamepad
 - [ ] Mouse movement
-- [ ] Gamepad
 - [ ] Touch screen
 
 ## Features
