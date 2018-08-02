@@ -20,7 +20,16 @@ Lynput.s_reserved_words = {
 -- DICTIONARIES
 ----------------
 Lynput.s_mouseButtons = {
-  ["1"]="lmb", ["2"]="rmb", ["3"]="mmb", ["x1"]="mb4", ["x2"]="mb5"
+  ["1"]="LMB", ["2"]="RMB", ["3"]="MMB", ["x1"]="MB4", ["x2"]="MB5"
+}
+
+Lynput.s_gamepadButtons = {
+  ["a"]="G_A", ["b"]="G_B", ["x"]="G_X", ["y"]="G_Y",
+  ["back"]="G_BACK", ["guide"]="G_GUIDE", ["start"]="G_START",
+  ["leftstick"]="G_LEFT_STICK", ["rightstick"]="G_RIGHT_STICK",
+  ["leftshoulder"]="G_LB", ["rightshoulder"]="G_RB",
+  ["dppup"]="G_DPAD_UP", ["dpdown"]="G_DPAD_DOWN", 
+  ["dpleft"]="G_DPAD_LEFT", ["dpright"]="G_DPAD_RIGHT"
 }
 
 -----------------------
@@ -36,16 +45,14 @@ Lynput.s_mouseButtons = {
 
 -- -- FIXME: Input names have to be unique, conflict with keyboard
 -- -- May add a preffix like gstart for start or ga for a, or gamepad_a for a
--- Lynput.s_gamepad_buttons = {
---   "a", "b", "x", "y", "back", "guide", "start", "leftstick", 
---   "rightstick", "leftshoulder", "rightshoulder", "dppup", "dpdown", 
---   "dpleft", "dpright"
--- }
 
 
 function Lynput:new()
   self.inputsSet = {}
 
+  -- TODO: Test gamepad support with more than 1 gamepad
+  self.gpad = nil
+  
   self.id = tostring(Lynput.s_idCount)
   Lynput.s_lynputs[self.id] = self
   Lynput.s_idCount = Lynput.s_idCount + 1
@@ -69,23 +76,35 @@ end
 
 
 local function _isInputValid(input)
-  for k,v in pairs(Lynput.s_mouseButtons) do
+  for _,v in pairs(Lynput.s_mouseButtons) do
     if v == input then
       return true
     end -- if v == input
-  end -- for each LÖVE mouse button
+  end -- for each Lynput mouse button
   
-  -- TODO: Gamepad buttons
+  for _,v in pairs(Lynput.s_gamepadButtons) do
+    if v == input then
+      return true
+    end -- if v == input
+  end -- for each Lynput gamepad button
+  
   -- TODO: Gamepad axes
   -- TODO: Touch screen
 
-  return love.keyboard.getScancodeFromKey(input)
+  return pcall(love.keyboard.getScancodeFromKey, input)
 end
 
 
 function Lynput:remove()
   Lynput.s_lynputs[self.id] = nil
   Lynput.s_count = Lynput.s_count - 1
+end
+
+
+-- @gamepad is a Lynput gamepad string name (e.g., "GPAD_1" for Lynput.GPAD_1)
+function Lynput:attachGamepad(gamepad)
+  -- TODO: More code, this needs to detach previous Lynput gamepad
+  self.gpad = gamepad
 end
 
 
@@ -202,26 +221,26 @@ end
 -- KEYBOARD CALLBACKS
 ---------------------------------
 function Lynput.onkeypressed(key)
-  for k,v in pairs(Lynput.s_lynputs) do
+  for _,v in pairs(Lynput.s_lynputs) do
     if v.inputsSet[key] then
       action = v.inputsSet[key]
       v[action].pressed = true
       v[action].holding = true
       v[action].released = false
-    end -- key is set
-  end -- for each s_lynputs
+    end -- if key is set
+  end -- for each lynput
 end
 
 
 function Lynput.onkeyreleased(key)
-  for k,v in pairs(Lynput.s_lynputs) do
+  for _,v in pairs(Lynput.s_lynputs) do
     if v.inputsSet[key] then
       action = v.inputsSet[key]
       v[action].released = true
       v[action].pressed = false
       v[action].holding = false
-    end -- key is set
-  end -- for each s_lynputs
+    end -- if key is set
+  end -- for each lynput
 end
 
 
@@ -232,14 +251,14 @@ function Lynput.onmousepressed(button)
   -- Translate LÖVE button to Lynput button
   button = Lynput.s_mouseButtons[tostring(button)]
   -- Process button
-  for k,v in pairs(Lynput.s_lynputs) do
+  for _,v in pairs(Lynput.s_lynputs) do
     if v.inputsSet[button] then
       action = v.inputsSet[button]
       v[action].pressed = true
       v[action].holding = true
       v[action].released = false
-    end -- button is set
-  end -- for each s_lynputs
+    end -- if button is set
+  end -- for each lynput
 end
 
 
@@ -247,12 +266,67 @@ function Lynput.onmousereleased(button)
   -- Translate LÖVE button to Lynput button
   button = Lynput.s_mouseButtons[tostring(button)]
   -- Process Lynput button
-  for k,v in pairs(Lynput.s_lynputs) do
+  for _,v in pairs(Lynput.s_lynputs) do
     if v.inputsSet[button] then
       action = v.inputsSet[button]
       v[action].released = true
       v[action].pressed = false
       v[action].holding = false
-    end -- button is set
-  end -- for each s_lynputs
+    end -- if button is set
+  end -- for each lynput
+end
+
+
+---------------------------------------------------
+-- GAMEPAD CALLBACKS
+---------------------------------------------------
+function Lynput.ongamepadpressed(gamepadID, button)
+  -- Translate LÖVE button to Lynput button
+  button = Lynput.s_gamepadButtons[button]
+  -- Process Lynput button
+  for _,v in pairs(Lynput.s_lynputs) do
+    if Lynput[v.gpad] == gamepadID then
+      if v.inputsSet[button] then
+	action = v.inputsSet[button]
+	v[action].pressed = true
+	v[action].holding = true
+	v[action].released = false
+      end -- if button is set
+    end -- if gamepad is set
+  end -- for each lynput
+end
+
+
+function Lynput.ongamepadreleased(gamepadID, button)
+  -- Translate LÖVE button to Lynput button
+  button = Lynput.s_gamepadButtons[button]
+  -- Process Lynput button
+  for _,v in pairs(Lynput.s_lynputs) do
+    if Lynput[v.gpad] == gamepadID then
+      if v.inputsSet[button] then
+	action = v.inputsSet[button]
+	v[action].released = true
+	v[action].pressed = false
+	v[action].holding = false
+      end -- if button is set
+    end -- if gamepad is set
+  end -- for each lynput
+end
+
+
+function Lynput.ongamepadadded(gamepadID)
+  local i = 1
+  local gpad = "GPAD_1"
+
+  while Lynput[gpad] do
+    if Lynput[gpad] == gamepadID then
+      return
+    end -- if gamepadID is already assgined
+    
+    i = i +1
+    gpad = "GPAD_" .. i
+  end -- while gpad exists
+
+  -- gpad does no exists, so we assign the new gamepad to it
+  Lynput[gpad] = gamepadID
 end
