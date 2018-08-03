@@ -28,7 +28,7 @@ Lynput.s_gamepadButtons = {
   ["back"]="G_BACK", ["guide"]="G_GUIDE", ["start"]="G_START",
   ["leftstick"]="G_LEFT_STICK", ["rightstick"]="G_RIGHT_STICK",
   ["leftshoulder"]="G_LB", ["rightshoulder"]="G_RB",
-  ["dppup"]="G_DPAD_UP", ["dpdown"]="G_DPAD_DOWN", 
+  ["dpup"]="G_DPAD_UP", ["dpdown"]="G_DPAD_DOWN", 
   ["dpleft"]="G_DPAD_LEFT", ["dpright"]="G_DPAD_RIGHT"
 }
 
