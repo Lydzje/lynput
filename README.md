@@ -5,7 +5,7 @@
 
 ## Devices supported
 - [x] Keyboard
-- [x] Mouse pressed, released and holding events
+- [x] Mouse buttons
 - [x] Gamepad buttons
 - [ ] Mouse position and movement
 - [ ] Gamepad analog input
