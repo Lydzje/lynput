@@ -75,23 +75,37 @@ local function _isActionValid(action)
 end
 
 
-local function _isInputValid(input)
+local function _isCommandValid(command)
+  local state, input = string.match(command, "(%w+)%s(.+)")
+  
+  -- Process state
+  local stateValid =
+    state == "release" or
+    state == "press" or
+    state == "hold"
+  
+  -- Process input
+  local inputValid = false
   for _,v in pairs(Lynput.s_mouseButtons) do
     if v == input then
-      return true
+      inputValid = true
     end -- if v == input
   end -- for each Lynput mouse button
   
   for _,v in pairs(Lynput.s_gamepadButtons) do
     if v == input then
-      return true
+      inputValid = true
     end -- if v == input
   end -- for each Lynput gamepad button
   
   -- TODO: Gamepad axes
   -- TODO: Touch screen
+  
+  if not inputValid then
+    inputValid = pcall(love.keyboard.getScancodeFromKey, input)
+  end -- if not inputValid
 
-  return pcall(love.keyboard.getScancodeFromKey, input)
+  return stateValid and inputValid, state, input
 end
 
 
@@ -108,95 +122,111 @@ function Lynput:attachGamepad(gamepad)
 end
 
 
-function Lynput:bind(action, inputs)
+function Lynput:bind(action, commands)
   -- Transforms 1 input to a table
-  if type(inputs) == "string" then
-    local input = inputs
-    inputs = {}
-    inputs[1] = input
-  end -- if only one input was given
+  if type(commands) == "string" then
+    local command = commands
+    commands = {}
+    commands[1] = command
+  end -- if only one command was given
 
-  -- Process input
-  for _,input in ipairs(inputs) do
+  -- Process command
+  for _,command in ipairs(commands) do
     -- Is action valid?
     assert(
       _isActionValid(action),
-      "Could not bind input->" .. input ..
+      "Could not bind command->" .. command ..
       -- TODO: Check documentation for valid actions message
 	"  to action->" .. action .. ", the action is not valid"
     )
-    -- Is input valid?
+    -- Is command valid?
+    local commandValid, state, input = _isCommandValid(command)
     assert(
-      _isInputValid(input),
-      "Could not bind input->" .. input ..
-      -- TODO: Check documentation for valid inputs message
-	"  to action->" .. action .. ", the input is not valid"
+      commandValid,
+      "Could not bind command->" .. command ..
+      -- TODO: Check documentation for valid commands message
+	"  to action->" .. action .. ", the command is not valid"
     )
-    
-    -- FIXME: Pressed and released do not work for movement inputs
-    if not self[action] then
-      self[action] = {}
-      self[action].pressed = false
-      self[action].released = false
-      self[action].holding = false
+
+    if self[action] == nil then
+      self[action] = false
     end -- if action not set
     
-    self.inputsSet[input] = action
-  end -- for each input
+    -- TOOD: Remove
+    -- -- FIXME: Pressed and released do not work for movement inputs
+    -- if not self[action] then
+    --   self[action] = {}
+    --   self[action].pressed = false
+    --   self[action].released = false
+    --   self[action].holding = false
+    -- end -- if action not set
+
+    self.inputsSet[input] = {}
+    self.inputsSet[input][state] = action
+  end -- for each command
 end
 
 
-function Lynput:unbind(action, inputs)
-  -- Transforms 1 input to a table
-  if type(inputs) == "string" then
-    local input = inputs
-    inputs = {}
-    inputs[1] = input
-  end -- if only one input was given
+function Lynput:unbind(action, commands)
+  -- Transforms 1 command to a table
+  if type(commands) == "string" then
+    local command = commands
+    commands = {}
+    commands[1] = command
+  end -- if only one command was given
 
-  -- Process input
-  for _,input in ipairs(inputs) do
+  -- Process command
+  for _,command in ipairs(commands) do
     -- Is action set?
+    -- FIXME: Exception when indexing nil values are not being handled, fix everywhere
     assert(
-      self[action],
-      "Could not unbind input->" .. input .. 
+      self[action] ~= nil,
+      "Could not unbind command->" .. command .. 
 	"  to action->" .. action .. ", the action is not set"
     )
-    -- Is input set?
+    -- Is command set?
+    local state, input = string.match(command, "(%w+)%s(.+)")
     assert(
-      self.inputsSet[input],
-      "Could not unbind input->" .. input .. 
-	"  to action->" .. action .. ", the input is not set"
+      self.inputsSet[input][state],
+      "Could not unbind command->" .. command .. 
+	"  to action->" .. action .. ", the command is not set"
     )
     
-    self.inputsSet[input] = nil
-    self[action].pressed = false
-    self[action].holding = false
-    self[action].released = false
-  end -- for each input
+    self.inputsSet[input][state] = nil
+    local inputStates = self.inputsSet[input]
+    if not inputStates["press"] and not inputStates["hold"] and not inputStates["release"] then
+      self.inputsSet[input] = nil
+    end -- if input is not set
+
+    self[action] = false
+  end -- for each command
 end
 
 
 function Lynput:unbindAll(action)
   -- Is action set?
   assert(
-    self[action],
-    "Could not unbind all inputs in action->" .. action ..
+    self[action] ~= nil,
+    "Could not unbind all commands in action->" .. action ..
       ", the action is not set"
   )
 
-  for k, v in pairs(self.inputsSet) do
-    if v == action then
-      self.inputsSet[k] = nil
-    end -- if v == action
+  for k,v in pairs(self.inputsSet) do
+    for kk,vv in pairs(v) do
+      if vv == action then
+	self.inputsSet[k][kk] = nil
+      end -- if vv == action
+    end -- for each input state
   end -- for each input set
+  
+  self[action] = false
 end
 
 
 function Lynput:removeAction(action)
   -- Is action set?
   assert(
-    self[action],
+    self[action] ~= nil,
     "Could not remove action->" .. action ..
       ", the action is not being used"
   )
@@ -209,11 +239,18 @@ end
 function Lynput:update()
   -- It's not possible to iterate actions through "self" because it
   -- also contains the inputsSet table
+  -- FIXME: Only works if lynput is updated after input processing
   for _,v in pairs(self.inputsSet) do
-    -- FIXME: Only works if lynput is updated after input processing
-    self[v].pressed = false
-    self[v].released = false
-  end -- for each action set
+    for k,vv in pairs(v) do
+      if k == "hold" then
+	goto continue
+      end -- if k == hold
+
+      self[vv] = false
+      
+      ::continue::
+    end -- for each state
+  end -- for each input set
 end
 
 
@@ -223,11 +260,15 @@ end
 function Lynput.onkeypressed(key)
   for _,v in pairs(Lynput.s_lynputs) do
     if v.inputsSet[key] then
-      action = v.inputsSet[key]
-      v[action].pressed = true
-      v[action].holding = true
-      v[action].released = false
-    end -- if key is set
+      if v.inputsSet[key]["press"] then
+	local action = v.inputsSet[key]["press"]
+	v[action] = true
+      end -- if press_key is set
+      if v.inputsSet[key]["hold"] then
+	local action = v.inputsSet[key]["hold"]
+	v[action] = true
+      end -- if hold_key is set      
+    end -- if key set
   end -- for each lynput
 end
 
@@ -235,10 +276,14 @@ end
 function Lynput.onkeyreleased(key)
   for _,v in pairs(Lynput.s_lynputs) do
     if v.inputsSet[key] then
-      action = v.inputsSet[key]
-      v[action].released = true
-      v[action].pressed = false
-      v[action].holding = false
+      if v.inputsSet[key]["release"] then
+	local action = v.inputsSet[key]["release"]
+	v[action] = true
+      end -- if release_key is set
+      if v.inputsSet[key]["hold"] then
+	local action = v.inputsSet[key]["hold"]
+	v[action] = false
+      end -- if hold_key is set
     end -- if key is set
   end -- for each lynput
 end
@@ -253,25 +298,33 @@ function Lynput.onmousepressed(button)
   -- Process button
   for _,v in pairs(Lynput.s_lynputs) do
     if v.inputsSet[button] then
-      action = v.inputsSet[button]
-      v[action].pressed = true
-      v[action].holding = true
-      v[action].released = false
+      if v.inputsSet[button]["press"] then
+	local action = v.inputsSet[button]["press"]
+	v[action] = true
+      end -- if press_button is set
+      if v.inputsSet[button]["hold"] then
+	local action = v.inputsSet[button]["hold"]
+	v[action] = true
+      end -- if hold_button is set
     end -- if button is set
   end -- for each lynput
 end
 
 
 function Lynput.onmousereleased(button)
-  -- Translate LÖVE button to Lynput button
+    -- Translate LÖVE button to Lynput button
   button = Lynput.s_mouseButtons[tostring(button)]
-  -- Process Lynput button
+  -- Process button
   for _,v in pairs(Lynput.s_lynputs) do
     if v.inputsSet[button] then
-      action = v.inputsSet[button]
-      v[action].released = true
-      v[action].pressed = false
-      v[action].holding = false
+      if v.inputsSet[button]["release"] then
+	local action = v.inputsSet[button]["release"]
+	v[action] = true
+      end -- if press_button is set
+      if v.inputsSet[button]["hold"] then
+	local action = v.inputsSet[button]["hold"]
+	v[action] = false
+      end -- if hold_button is set
     end -- if button is set
   end -- for each lynput
 end
@@ -287,10 +340,14 @@ function Lynput.ongamepadpressed(gamepadID, button)
   for _,v in pairs(Lynput.s_lynputs) do
     if Lynput[v.gpad] == gamepadID then
       if v.inputsSet[button] then
-	action = v.inputsSet[button]
-	v[action].pressed = true
-	v[action].holding = true
-	v[action].released = false
+	if v.inputsSet[button]["press"] then
+	  local action = v.inputsSet[button]["press"]
+	  v[action] = true
+	end -- if press_button is set
+	if v.inputsSet[button]["hold"] then
+	  local action = v.inputsSet[button]["hold"]
+	  v[action] = true
+	end -- if hold_button is set
       end -- if button is set
     end -- if gamepad is set
   end -- for each lynput
@@ -298,16 +355,20 @@ end
 
 
 function Lynput.ongamepadreleased(gamepadID, button)
-  -- Translate LÖVE button to Lynput button
+    -- Translate LÖVE button to Lynput button
   button = Lynput.s_gamepadButtons[button]
   -- Process Lynput button
   for _,v in pairs(Lynput.s_lynputs) do
     if Lynput[v.gpad] == gamepadID then
       if v.inputsSet[button] then
-	action = v.inputsSet[button]
-	v[action].released = true
-	v[action].pressed = false
-	v[action].holding = false
+	if v.inputsSet[button]["release"] then
+	  local action = v.inputsSet[button]["release"]
+	  v[action] = true
+	end -- if release_button is set
+	if v.inputsSet[button]["hold"] then
+	  local action = v.inputsSet[button]["hold"]
+	  v[action] = false
+	end -- if hold_button is set
       end -- if button is set
     end -- if gamepad is set
   end -- for each lynput

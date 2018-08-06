@@ -1,32 +1,33 @@
 function love.load()
   require("Lynput")
   lynput = Lynput()
-  lynput:bind("exit", "escape")
+  lynput:bind("exit", "release escape")
 
   lynput:attachGamepad("GPAD_1")
-  lynput:bind("pressing", {"p", "LMB", "G_A"})
-  lynput:bind("releasing", {"r", "RMB", "G_B"})
-  lynput:bind("holding", {"h", "MMB", "G_X"})
-  
+  lynput:bind("pressing", {"press p", "press LMB", "press G_A"})
+  lynput:bind("releasing", {"release r", "release RMB", "release G_B"})
+  lynput:bind("holding", {"hold h", "hold MMB", "hold G_X"})
+
+  lynput:unbind("pressing", "press LMB")
   lynput:unbindAll("holding")
 end
 
 
 function love.update(dt)
-  if lynput.exit.released then
+  if lynput.exit then
     love.event.quit()
   end -- if exit
 
-  if lynput.pressing.pressed then
+  if lynput.pressing then
     print("Pressing")
   end -- if pressing
 
-  if lynput.releasing.released then
+  if lynput.releasing then
     print("Releasing")
-    lynput:unbind("releasing", {"r", "RMB", "G_B"})
+    lynput:unbind("releasing", {"release r", "release RMB", "release G_B"})
   end -- if releasing
 
-  if lynput.holding.holding then
+  if lynput.holding then
     print("Holding")
   end -- if holding
 
