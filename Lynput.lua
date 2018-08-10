@@ -10,7 +10,7 @@ Lynput.s_count = 0
 -- TODO: More reserved words such as:
 -- - reserved characters
 -- - lynput variables stored in "self"
-Lynput.s_reserved_words = {
+Lynput.s_reservedName = {
   "and", "break", "do", "else", "elseif", "end", "false", "for", 
   "function", "if", "in", "local", "nil", "not", "or", "repeat", 
   "return", "then", "true", "until", "while"
@@ -68,11 +68,11 @@ local function _isActionValid(action)
     return false
   end -- if not string
   
-  for i,v in ipairs(Lynput.s_reserved_words) do
-    if v == action then
+  for _, reservedName in ipairs(Lynput.s_reservedName) do
+    if reservedName == action then
       return false
-    end -- if s_reserved_word
-  end -- for each s_reserved_words
+    end -- if action name is reserved
+  end -- for each reserved name
   
   return true
 end
@@ -89,16 +89,16 @@ local function _isCommandValid(command)
   
   -- Process input
   local inputValid = false
-  for _,v in pairs(Lynput.s_mouseButtons) do
-    if v == input then
+  for _, button in pairs(Lynput.s_mouseButtons) do
+    if button == input then
       inputValid = true
-    end -- if v == input
+    end -- if button == input
   end -- for each Lynput mouse button
   
-  for _,v in pairs(Lynput.s_gamepadButtons) do
-    if v == input then
+  for _, button in pairs(Lynput.s_gamepadButtons) do
+    if button == input then
       inputValid = true
-    end -- if v == input
+    end -- if button == input
   end -- for each Lynput gamepad button
   
   -- TODO: Gamepad axes
@@ -135,7 +135,7 @@ function Lynput:bind(action, commands)
   end -- if only one command was given
 
   -- Process command
-  for _,command in ipairs(commands) do
+  for _, command in ipairs(commands) do
     -- Is action valid?
     assert(
       _isActionValid(action),
@@ -180,7 +180,7 @@ function Lynput:unbind(action, commands)
   end -- if only one command was given
 
   -- Process command
-  for _,command in ipairs(commands) do
+  for _, command in ipairs(commands) do
     -- Is action set?
     -- FIXME: Exception when indexing nil values are not being handled, fix everywhere
     assert(
@@ -215,12 +215,12 @@ function Lynput:unbindAll(action)
       ", the action is not set"
   )
 
-  for k,v in pairs(self.inputsSet) do
-    for kk,vv in pairs(v) do
-      if vv == action then
-	self.inputsSet[k][kk] = nil
-      end -- if vv == action
-    end -- for each input state
+  for inputSet, states in pairs(self.inputsSet) do
+    for state, actionSet in pairs(states) do
+      if actionSet == action then
+	self.inputsSet[inputSet][state] = nil
+      end -- if actionSet == action
+    end -- for each inputSet state
   end -- for each input set
   
   self[action] = false
@@ -244,13 +244,13 @@ function Lynput:update()
   -- It's not possible to iterate actions through "self" because it
   -- also contains the inputsSet table
   -- FIXME: Only works if lynput is updated after input processing
-  for _,v in pairs(self.inputsSet) do
-    for k,vv in pairs(v) do
-      if k == "hold" then
+  for _, states in pairs(self.inputsSet) do
+    for state, actionSet in pairs(states) do
+      if state == "hold" then
 	goto continue
-      end -- if k == hold
+      end -- if state == hold
 
-      self[vv] = false
+      self[actionSet] = false
       
       ::continue::
     end -- for each state
@@ -262,15 +262,15 @@ end
 -- KEYBOARD CALLBACKS
 ---------------------------------
 function Lynput.onkeypressed(key)
-  for _,v in pairs(Lynput.s_lynputs) do
-    if v.inputsSet[key] then
-      if v.inputsSet[key]["press"] then
-	local action = v.inputsSet[key]["press"]
-	v[action] = true
+  for _, lynput in pairs(Lynput.s_lynputs) do
+    if lynput.inputsSet[key] then
+      if lynput.inputsSet[key]["press"] then
+	local action = lynput.inputsSet[key]["press"]
+	lynput[action] = true
       end -- if press_key is set
-      if v.inputsSet[key]["hold"] then
-	local action = v.inputsSet[key]["hold"]
-	v[action] = true
+      if lynput.inputsSet[key]["hold"] then
+	local action = lynput.inputsSet[key]["hold"]
+	lynput[action] = true
       end -- if hold_key is set      
     end -- if key set
   end -- for each lynput
@@ -278,15 +278,15 @@ end
 
 
 function Lynput.onkeyreleased(key)
-  for _,v in pairs(Lynput.s_lynputs) do
-    if v.inputsSet[key] then
-      if v.inputsSet[key]["release"] then
-	local action = v.inputsSet[key]["release"]
-	v[action] = true
+  for _, lynput in pairs(Lynput.s_lynputs) do
+    if lynput.inputsSet[key] then
+      if lynput.inputsSet[key]["release"] then
+	local action = lynput.inputsSet[key]["release"]
+	lynput[action] = true
       end -- if release_key is set
-      if v.inputsSet[key]["hold"] then
-	local action = v.inputsSet[key]["hold"]
-	v[action] = false
+      if lynput.inputsSet[key]["hold"] then
+	local action = lynput.inputsSet[key]["hold"]
+	lynput[action] = false
       end -- if hold_key is set
     end -- if key is set
   end -- for each lynput
@@ -300,15 +300,15 @@ function Lynput.onmousepressed(button)
   -- Translate LÖVE button to Lynput button
   button = Lynput.s_mouseButtons[tostring(button)]
   -- Process button
-  for _,v in pairs(Lynput.s_lynputs) do
-    if v.inputsSet[button] then
-      if v.inputsSet[button]["press"] then
-	local action = v.inputsSet[button]["press"]
-	v[action] = true
+  for _, lynput in pairs(Lynput.s_lynputs) do
+    if lynput.inputsSet[button] then
+      if lynput.inputsSet[button]["press"] then
+	local action = lynput.inputsSet[button]["press"]
+	lynput[action] = true
       end -- if press_button is set
-      if v.inputsSet[button]["hold"] then
-	local action = v.inputsSet[button]["hold"]
-	v[action] = true
+      if lynput.inputsSet[button]["hold"] then
+	local action = lynput.inputsSet[button]["hold"]
+	lynput[action] = true
       end -- if hold_button is set
     end -- if button is set
   end -- for each lynput
@@ -319,15 +319,15 @@ function Lynput.onmousereleased(button)
     -- Translate LÖVE button to Lynput button
   button = Lynput.s_mouseButtons[tostring(button)]
   -- Process button
-  for _,v in pairs(Lynput.s_lynputs) do
-    if v.inputsSet[button] then
-      if v.inputsSet[button]["release"] then
-	local action = v.inputsSet[button]["release"]
-	v[action] = true
+  for _, lynput in pairs(Lynput.s_lynputs) do
+    if lynput.inputsSet[button] then
+      if lynput.inputsSet[button]["release"] then
+	local action = lynput.inputsSet[button]["release"]
+	lynput[action] = true
       end -- if press_button is set
-      if v.inputsSet[button]["hold"] then
-	local action = v.inputsSet[button]["hold"]
-	v[action] = false
+      if lynput.inputsSet[button]["hold"] then
+	local action = lynput.inputsSet[button]["hold"]
+	lynput[action] = false
       end -- if hold_button is set
     end -- if button is set
   end -- for each lynput
@@ -341,16 +341,16 @@ function Lynput.ongamepadpressed(gamepadID, button)
   -- Translate LÖVE button to Lynput button
   button = Lynput.s_gamepadButtons[button]
   -- Process Lynput button
-  for _,v in pairs(Lynput.s_lynputs) do
-    if Lynput[v.gpad]:getID() == gamepadID then
-      if v.inputsSet[button] then
-	if v.inputsSet[button]["press"] then
-	  local action = v.inputsSet[button]["press"]
-	  v[action] = true
+  for _, lynput in pairs(Lynput.s_lynputs) do
+    if Lynput[lynput.gpad]:getID() == gamepadID then
+      if lynput.inputsSet[button] then
+	if lynput.inputsSet[button]["press"] then
+	  local action = lynput.inputsSet[button]["press"]
+	  lynput[action] = true
 	end -- if press_button is set
-	if v.inputsSet[button]["hold"] then
-	  local action = v.inputsSet[button]["hold"]
-	  v[action] = true
+	if lynput.inputsSet[button]["hold"] then
+	  local action = lynput.inputsSet[button]["hold"]
+	  lynput[action] = true
 	end -- if hold_button is set
       end -- if button is set
     end -- if gamepad is set
@@ -362,16 +362,16 @@ function Lynput.ongamepadreleased(gamepadID, button)
     -- Translate LÖVE button to Lynput button
   button = Lynput.s_gamepadButtons[button]
   -- Process Lynput button
-  for _,v in pairs(Lynput.s_lynputs) do
-    if Lynput[v.gpad]:getID() == gamepadID then
-      if v.inputsSet[button] then
-	if v.inputsSet[button]["release"] then
-	  local action = v.inputsSet[button]["release"]
-	  v[action] = true
+  for _, lynput in pairs(Lynput.s_lynputs) do
+    if Lynput[lynput.gpad]:getID() == gamepadID then
+      if lynput.inputsSet[button] then
+	if lynput.inputsSet[button]["release"] then
+	  local action = lynput.inputsSet[button]["release"]
+	  lynput[action] = true
 	end -- if release_button is set
-	if v.inputsSet[button]["hold"] then
-	  local action = v.inputsSet[button]["hold"]
-	  v[action] = false
+	if lynput.inputsSet[button]["hold"] then
+	  local action = lynput.inputsSet[button]["hold"]
+	  lynput[action] = false
 	end -- if hold_button is set
       end -- if button is set
     end -- if gamepad is set
