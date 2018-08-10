@@ -32,6 +32,12 @@ Lynput.s_gamepadButtons = {
   ["dpleft"]="G_DPAD_LEFT", ["dpright"]="G_DPAD_RIGHT"
 }
 
+Lynput.s_gamepadAxes = {
+  ["leftx"]="G_LEFT_STICK_X", ["lefty"]="G_LEFT_SITCK_Y",
+  ["rightx"]="G_RIGHT_STICK_X", ["righty"]="G_RIGHT_SITCK_Y",
+  ["triggerleft"]="G_LT", ["triggerright"]="G_RT"
+}
+
 -----------------------
 -- FUTURE DICTIONARIES
 -----------------------
@@ -39,15 +45,12 @@ Lynput.s_gamepadButtons = {
 --   "wd", "wu"
 -- }
 
--- Lynput.s_gamepad_axes = {
---   "leftx", "lefty", "rightx", "righty", "triggerleft", "triggerright"
--- }
-
 -- -- FIXME: Input names have to be unique, conflict with keyboard
 -- -- May add a preffix like gstart for start or ga for a, or gamepad_a for a
 
 
 function Lynput:new()
+  -- Maps LÖVE inputs modes to actions
   self.inputsSet = {}
 
   -- TODO: Test gamepad support with more than 1 gamepad
@@ -115,9 +118,10 @@ function Lynput:remove()
 end
 
 
--- @gamepad is a Lynput gamepad string name (e.g., "GPAD_1" for Lynput.GPAD_1)
+-- @gamepad is a Lynput gamepad string name (e.g., "GPAD_1", "GPAD_2", ..., "GPAD_N")
 function Lynput:attachGamepad(gamepad)
   -- TODO: More code, this needs to detach previous Lynput gamepad
+  
   self.gpad = gamepad
 end
 
@@ -338,7 +342,7 @@ function Lynput.ongamepadpressed(gamepadID, button)
   button = Lynput.s_gamepadButtons[button]
   -- Process Lynput button
   for _,v in pairs(Lynput.s_lynputs) do
-    if Lynput[v.gpad] == gamepadID then
+    if Lynput[v.gpad]:getID() == gamepadID then
       if v.inputsSet[button] then
 	if v.inputsSet[button]["press"] then
 	  local action = v.inputsSet[button]["press"]
@@ -359,7 +363,7 @@ function Lynput.ongamepadreleased(gamepadID, button)
   button = Lynput.s_gamepadButtons[button]
   -- Process Lynput button
   for _,v in pairs(Lynput.s_lynputs) do
-    if Lynput[v.gpad] == gamepadID then
+    if Lynput[v.gpad]:getID() == gamepadID then
       if v.inputsSet[button] then
 	if v.inputsSet[button]["release"] then
 	  local action = v.inputsSet[button]["release"]
@@ -375,12 +379,12 @@ function Lynput.ongamepadreleased(gamepadID, button)
 end
 
 
-function Lynput.ongamepadadded(gamepadID)
+function Lynput.ongamepadadded(gamepad)
+  local gamepadID = gamepad:getID()
   local i = 1
   local gpad = "GPAD_1"
-
   while Lynput[gpad] do
-    if Lynput[gpad] == gamepadID then
+    if Lynput[gpad]:getID() == gamepadID then
       return
     end -- if gamepadID is already assgined
     
@@ -389,5 +393,5 @@ function Lynput.ongamepadadded(gamepadID)
   end -- while gpad exists
 
   -- gpad does no exists, so we assign the new gamepad to it
-  Lynput[gpad] = gamepadID
+  Lynput[gpad] = gamepad
 end

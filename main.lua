@@ -74,5 +74,5 @@ end
 
 
 function love.joystickadded(joystick)
-  Lynput.ongamepadadded(joystick:getID())
+  Lynput.ongamepadadded(joystick)
 end
