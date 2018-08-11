@@ -342,39 +342,43 @@ function Lynput.ongamepadpressed(gamepadID, button)
   button = Lynput.s_gamepadButtons[button]
   -- Process Lynput button
   for _, lynput in pairs(Lynput.s_lynputs) do
-    if Lynput[lynput.gpad]:getID() == gamepadID then
-      if lynput.inputsSet[button] then
-	if lynput.inputsSet[button]["press"] then
-	  local action = lynput.inputsSet[button]["press"]
-	  lynput[action] = true
-	end -- if press_button is set
-	if lynput.inputsSet[button]["hold"] then
-	  local action = lynput.inputsSet[button]["hold"]
-	  lynput[action] = true
-	end -- if hold_button is set
-      end -- if button is set
-    end -- if gamepad is set
+    if lynput.gpad then
+      if Lynput[lynput.gpad]:getID() == gamepadID then
+	if lynput.inputsSet[button] then
+	  if lynput.inputsSet[button]["press"] then
+	    local action = lynput.inputsSet[button]["press"]
+	    lynput[action] = true
+	  end -- if press_button is set
+	  if lynput.inputsSet[button]["hold"] then
+	    local action = lynput.inputsSet[button]["hold"]
+	    lynput[action] = true
+	  end -- if hold_button is set
+	end -- if button is set
+      end -- if gamepad is set
+    end -- if lynput has a gamepad attached
   end -- for each lynput
 end
 
 
 function Lynput.ongamepadreleased(gamepadID, button)
-    -- Translate LÖVE button to Lynput button
+  -- Translate LÖVE button to Lynput button
   button = Lynput.s_gamepadButtons[button]
   -- Process Lynput button
   for _, lynput in pairs(Lynput.s_lynputs) do
-    if Lynput[lynput.gpad]:getID() == gamepadID then
-      if lynput.inputsSet[button] then
-	if lynput.inputsSet[button]["release"] then
-	  local action = lynput.inputsSet[button]["release"]
-	  lynput[action] = true
-	end -- if release_button is set
-	if lynput.inputsSet[button]["hold"] then
-	  local action = lynput.inputsSet[button]["hold"]
-	  lynput[action] = false
-	end -- if hold_button is set
-      end -- if button is set
-    end -- if gamepad is set
+    if lynput.gpad then
+      if Lynput[lynput.gpad]:getID() == gamepadID then
+	if lynput.inputsSet[button] then
+	  if lynput.inputsSet[button]["release"] then
+	    local action = lynput.inputsSet[button]["release"]
+	    lynput[action] = true
+	  end -- if release_button is set
+	  if lynput.inputsSet[button]["hold"] then
+	    local action = lynput.inputsSet[button]["hold"]
+	    lynput[action] = false
+	  end -- if hold_button is set
+	end -- if button is set
+      end -- if gamepad is set
+    end -- if lynput has a gamepad attached
   end -- for each lynput
 end
 
