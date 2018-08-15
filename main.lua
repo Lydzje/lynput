@@ -45,7 +45,7 @@ function love.update(dt)
     print("Moving right")
   end -- if moveRight
   
-  lynput:update(dt)
+  Lynput.update_(dt)
 end
 
 

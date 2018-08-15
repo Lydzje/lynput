@@ -62,6 +62,13 @@ function Lynput:new()
 end
 
 
+function Lynput.update_(dt)
+  for _, lynput in pairs(Lynput.s_lynputs) do
+    lynput:update(dt)
+  end -- for each lynput
+end
+
+
 local function _isActionValid(action)
   if type(action) ~= "string" then
     return false
@@ -274,10 +281,7 @@ end
 
 function Lynput:update(dt)
   -- It's not possible to iterate actions through "self" because it
-  -- also contains the inputsSet table
-  -- FIXME: Only works if lynput is updated after input processing
-  -- SOLUTION: Update all lynputs at the end of the love.update function
-  -- HOW: Do a Lynput.update_ static function which updates all lynputs
+  -- also contains the inputsSet table and other data
   for _, states in pairs(self.inputsSet) do
     for state, actionSet in pairs(states) do
       if state ~= "hold" then
