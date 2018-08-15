@@ -45,16 +45,15 @@ Lynput.s_gamepadAxes = {
 --   "wd", "wu"
 -- }
 
--- -- FIXME: Input names have to be unique, conflict with keyboard
--- -- May add a preffix like gstart for start or ga for a, or gamepad_a for a
-
 
 function Lynput:new()
-  -- Maps LÖVE inputs states to actions, inputsSet[state][action]
+  -- Maps Lynput inputs and states to actions, inputsSet[state][action]
   self.inputsSet = {}
 
   -- TODO: Test gamepad support with more than 1 gamepad
   self.gpad = nil
+  -- TODO: set and get dead zone
+  self.gpadDeadZone = 30
   
   self.id = tostring(Lynput.s_idCount)
   Lynput.s_lynputs[self.id] = self
@@ -79,34 +78,62 @@ end
 
 
 local function _isCommandValid(command)
-  local state, input = string.match(command, "(%w+)%s(.+)")
+  local stateValid, inputValid = false, false
+  local state, input = string.match(command, "(.+)%s(.+)")
+  
+  if not state or not input then
+    goto exit
+  end -- if state or input are nil
   
   -- Process state
-  local stateValid =
+  stateValid =
     state == "release" or
     state == "press" or
     state == "hold"
-  
+
+  if not stateValid then
+    local min, max = string.match(state, "(.+)%:(.+)")
+
+    min = tonumber(min)
+    max = tonumber(max)
+
+    if not min or not max then
+      goto exit
+    end -- if min or max are nil
+
+    stateValid =
+      min < max and
+      min >= -100 and
+      max <= 100
+  end -- if state is not meant for buttons
+
   -- Process input
-  local inputValid = false
   for _, button in pairs(Lynput.s_mouseButtons) do
     if button == input then
       inputValid = true
+      goto exit
     end -- if button == input
   end -- for each Lynput mouse button
   
   for _, button in pairs(Lynput.s_gamepadButtons) do
     if button == input then
       inputValid = true
+      goto exit
     end -- if button == input
   end -- for each Lynput gamepad button
   
-  -- TODO: Gamepad axes
+  for _, axis in pairs(Lynput.s_gamepadAxes) do
+    if axis == input then
+      inputValid = true
+      goto exit
+    end -- if axis == input
+  end -- for each Lynput gamepad axis
+
   -- TODO: Touch screen
   
-  if not inputValid then
-    inputValid = pcall(love.keyboard.getScancodeFromKey, input)
-  end -- if not inputValid
+  inputValid = pcall(love.keyboard.getScancodeFromKey, input)
+
+  ::exit::
 
   return stateValid and inputValid, state, input
 end
@@ -118,7 +145,7 @@ function Lynput:remove()
 end
 
 
--- @gamepad is a Lynput gamepad string name (e.g., "GPAD_1", "GPAD_2", ..., "GPAD_N")
+-- @param gamepad is a Lynput gamepad string name (e.g., "GPAD_1", "GPAD_2", ..., "GPAD_N")
 function Lynput:attachGamepad(gamepad)
   -- TODO: More code, this needs to detach previous Lynput gamepad
   
@@ -141,31 +168,30 @@ function Lynput:bind(action, commands)
       _isActionValid(action),
       "Could not bind command->" .. command ..
       -- TODO: Check documentation for valid actions message
-	"  to action->" .. action .. ", the action is not valid"
+	"  to action->" .. action .. ", the action is not valid."
     )
     -- Is command valid?
     local commandValid, state, input = _isCommandValid(command)
     assert(
       commandValid,
       "Could not bind command->" .. command ..
-      -- TODO: Check documentation for valid commands message
-	"  to action->" .. action .. ", the command is not valid"
+	"  to action->" .. action .. ", the command is not valid." ..
+	"\n\nCommands should be formated as follows: \n\n" ..
+	"    COMMAND = STATE INPUT (with a space in between)\n" ..
+	"    STATE =\n" ..
+        "        for buttons -> press, release or hold\n" ..
+	"        for analog inputs -> x:y (with a colon in between) where x and y are numbers\n" ..
+	"    INPUT = check the manual for all availible inputs\n\n"
     )
 
     if self[action] == nil then
       self[action] = false
     end -- if action not set
-    
-    -- TOOD: Remove
-    -- -- FIXME: Pressed and released do not work for movement inputs
-    -- if not self[action] then
-    --   self[action] = {}
-    --   self[action].pressed = false
-    --   self[action].released = false
-    --   self[action].holding = false
-    -- end -- if action not set
 
-    self.inputsSet[input] = {}
+    if not self.inputsSet[input] then
+      self.inputsSet[input] = {}
+    end -- if input hasn't already been set
+
     self.inputsSet[input][state] = action
   end -- for each command
 end
@@ -186,21 +212,27 @@ function Lynput:unbind(action, commands)
     assert(
       self[action] ~= nil,
       "Could not unbind command->" .. command .. 
-	"  to action->" .. action .. ", the action is not set"
+	"  to action->" .. action .. ", the action is not set."
     )
     -- Is command set?
-    local state, input = string.match(command, "(%w+)%s(.+)")
+    local state, input = string.match(command, "(.+)%s(.+)")
     assert(
       self.inputsSet[input][state],
       "Could not unbind command->" .. command .. 
-	"  to action->" .. action .. ", the command is not set"
+	"  to action->" .. action .. ", the command is not set."
     )
     
     self.inputsSet[input][state] = nil
     local inputStates = self.inputsSet[input]
-    if not inputStates["press"] and not inputStates["hold"] and not inputStates["release"] then
+
+    local statesNum = 0
+    for state, _ in pairs(self.inputsSet[input]) do
+      statesNum = statesNum + 1
+    end -- for each state
+
+    if statesNum == 0 then
       self.inputsSet[input] = nil
-    end -- if input is not set
+    end -- if there are no more states set
 
     self[action] = false
   end -- for each command
@@ -212,7 +244,7 @@ function Lynput:unbindAll(action)
   assert(
     self[action] ~= nil,
     "Could not unbind all commands in action->" .. action ..
-      ", the action is not set"
+      ", the action is not set."
   )
 
   for inputSet, states in pairs(self.inputsSet) do
@@ -232,7 +264,7 @@ function Lynput:removeAction(action)
   assert(
     self[action] ~= nil,
     "Could not remove action->" .. action ..
-      ", the action is not being used"
+      ", this action does not exist."
   )
   
   self:unbindAll(action)
@@ -253,6 +285,21 @@ function Lynput:update(dt)
       end -- if state ~= hold
     end -- for each state
   end -- for each input set
+
+  if Lynput[self.gpad] then
+    if self.inputsSet["G_LEFT_STICK_X"] then
+      local val = Lynput[self.gpad]:getGamepadAxis("leftx") * 100
+      
+      for interval, action in pairs(self.inputsSet["G_LEFT_STICK_X"]) do
+	local min, max = string.match(interval, "(.+)%:(.+)")
+	min = tonumber(min)
+	max = tonumber(max)
+	if val >= min and (math.abs(val) > self.gpadDeadZone) and val <= max then
+	  self[action] = true
+	end -- if val is in interval
+      end -- for each interval
+    end -- if the axis is set
+  end -- if the gamepad has been added
 end
 
 

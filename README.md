@@ -7,8 +7,8 @@
 - [x] Keyboard
 - [x] Mouse buttons
 - [x] Gamepad buttons
+- [x] Gamepad analog input
 - [ ] Mouse position and movement
-- [ ] Gamepad analog input
 - [ ] Touch screen
 
 ## Features

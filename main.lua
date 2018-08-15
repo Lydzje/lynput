@@ -4,12 +4,18 @@ function love.load()
   lynput:bind("exit", "release escape")
 
   lynput:attachGamepad("GPAD_1")
+
   lynput:bind("pressing", {"press p", "press LMB", "press G_A"})
   lynput:bind("releasing", {"release r", "release RMB", "release G_B"})
   lynput:bind("holding", {"hold h", "hold MMB", "hold G_X"})
 
   lynput:unbind("pressing", "press LMB")
   lynput:unbindAll("holding")
+  
+  lynput:bind("moveLeft", {"-100:-50 G_LEFT_STICK_X"})
+  lynput:bind("moveRight", {"50:100 G_LEFT_STICK_X"})
+
+  lynput:unbind("moveRight", "50:100 G_LEFT_STICK_X")
 end
 
 
@@ -31,6 +37,14 @@ function love.update(dt)
     print("Holding")
   end -- if holding
 
+  if lynput.moveLeft then
+    print("moving left")
+  end -- if moveLeft
+
+  if lynput.moveRight then
+    print("Moving right")
+  end -- if moveRight
+  
   lynput:update(dt)
 end
 
