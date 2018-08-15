@@ -50,7 +50,7 @@ Lynput.s_gamepadAxes = {
 
 
 function Lynput:new()
-  -- Maps LÖVE inputs modes to actions
+  -- Maps LÖVE inputs states to actions, inputsSet[state][action]
   self.inputsSet = {}
 
   -- TODO: Test gamepad support with more than 1 gamepad
@@ -240,19 +240,17 @@ function Lynput:removeAction(action)
 end
 
 
-function Lynput:update()
+function Lynput:update(dt)
   -- It's not possible to iterate actions through "self" because it
   -- also contains the inputsSet table
   -- FIXME: Only works if lynput is updated after input processing
+  -- SOLUTION: Update all lynputs at the end of the love.update function
+  -- HOW: Do a Lynput.update_ static function which updates all lynputs
   for _, states in pairs(self.inputsSet) do
     for state, actionSet in pairs(states) do
-      if state == "hold" then
-	goto continue
-      end -- if state == hold
-
-      self[actionSet] = false
-      
-      ::continue::
+      if state ~= "hold" then
+	self[actionSet] = false
+      end -- if state ~= hold
     end -- for each state
   end -- for each input set
 end
