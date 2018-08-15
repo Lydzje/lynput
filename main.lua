@@ -16,6 +16,8 @@ function love.load()
   lynput:bind("moveRight", {"50:100 G_LEFT_STICK_X"})
 
   lynput:unbind("moveRight", "50:100 G_LEFT_STICK_X")
+
+  lynput:bind("RTing", "0:100 G_RT")
 end
 
 
@@ -44,6 +46,11 @@ function love.update(dt)
   if lynput.moveRight then
     print("Moving right")
   end -- if moveRight
+
+  if lynput.RTing then
+    print("RTing")
+  end -- if RTing
+
   
   Lynput.update_(dt)
 end

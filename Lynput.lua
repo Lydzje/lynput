@@ -33,8 +33,8 @@ Lynput.s_gamepadButtons = {
 }
 
 Lynput.s_gamepadAxes = {
-  ["leftx"]="G_LEFT_STICK_X", ["lefty"]="G_LEFT_SITCK_Y",
-  ["rightx"]="G_RIGHT_STICK_X", ["righty"]="G_RIGHT_SITCK_Y",
+  ["leftx"]="G_LEFT_STICK_X", ["lefty"]="G_LEFT_STICK_Y",
+  ["rightx"]="G_RIGHT_STICK_X", ["righty"]="G_RIGHT_STICK_Y",
   ["triggerleft"]="G_LT", ["triggerright"]="G_RT"
 }
 
@@ -53,6 +53,7 @@ function Lynput:new()
   -- TODO: Test gamepad support with more than 1 gamepad
   self.gpad = nil
   -- TODO: set and get dead zone
+  -- TODO: Different deadzones for joysticks and triggers
   self.gpadDeadZone = 30
   
   self.id = tostring(Lynput.s_idCount)
@@ -291,10 +292,11 @@ function Lynput:update(dt)
   end -- for each input set
 
   if Lynput[self.gpad] then
-    if self.inputsSet["G_LEFT_STICK_X"] then
-      local val = Lynput[self.gpad]:getGamepadAxis("leftx") * 100
+    for loveAxis, lynputAxis in pairs(Lynput.s_gamepadAxes) do
+    if self.inputsSet[lynputAxis] then
+      local val = Lynput[self.gpad]:getGamepadAxis(loveAxis) * 100
       
-      for interval, action in pairs(self.inputsSet["G_LEFT_STICK_X"]) do
+      for interval, action in pairs(self.inputsSet[lynputAxis]) do
 	local min, max = string.match(interval, "(.+)%:(.+)")
 	min = tonumber(min)
 	max = tonumber(max)
@@ -303,6 +305,7 @@ function Lynput:update(dt)
 	end -- if val is in interval
       end -- for each interval
     end -- if the axis is set
+    end -- for each axis
   end -- if the gamepad has been added
 end
 
