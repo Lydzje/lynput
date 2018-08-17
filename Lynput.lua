@@ -285,7 +285,7 @@ function Lynput:update(dt)
   -- also contains the inputsSet table and other data
   for _, states in pairs(self.inputsSet) do
     for state, actionSet in pairs(states) do
-      if state ~= "hold" then
+      if state == "press" or state == "release" then
 	self[actionSet] = false
       end -- if state ~= hold
     end -- for each state
