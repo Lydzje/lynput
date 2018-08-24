@@ -90,7 +90,7 @@ local function _isActionValid(action)
   end -- for each reserved name
 
   for _, reservedChar in ipairs(Lynput.s_reservedCharacters) do
-    if string.find(action, reservedChar) then
+    if string.find(action, "%" .. reservedChar) then
       return false
     end -- if action name contains reserved characters
   end -- for each reserved character

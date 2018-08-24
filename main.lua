@@ -12,10 +12,10 @@ function love.load()
   lynput:unbind("pressing", "press LMB")
   lynput:unbindAll("holding")
   
-  lynput:bind("moveLeft", {"-100:-50 G_LEFT_STICK_X"})
-  lynput:bind("moveRight", {"50:100 G_LEFT_STICK_X"})
+  lynput:bind("moveLeft", {"-100:-50 G_LEFTSTICK_X"})
+  lynput:bind("moveRight", {"50:100 G_LEFTSTICK_X"})
 
-  lynput:unbind("moveRight", "50:100 G_LEFT_STICK_X")
+  lynput:unbind("moveRight", "50:100 G_LEFTSTICK_X")
 
   lynput:bind("RTing", "0:100 G_RT")
 end
