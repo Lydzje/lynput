@@ -7,13 +7,21 @@ Lynput.s_lynputs = {}
 Lynput.s_idCount = 0
 Lynput.s_count = 0
 
--- TODO: More reserved words such as:
--- - reserved characters
--- - lynput variables stored in "self"
-Lynput.s_reservedName = {
+Lynput.s_reservedNames = {
+  -- Reserved by Lua
   "and", "break", "do", "else", "elseif", "end", "false", "for", 
   "function", "if", "in", "local", "nil", "not", "or", "repeat", 
-  "return", "then", "true", "until", "while"
+  "return", "then", "true", "until", "while",
+  -- TODO: Remove the comment below when a standalone version comes up
+  -- Reserved by Classic is not supported since Lynput won't require any library in future
+  -- Reserved by Lynput
+  "inputsSet", "gpad", "gpadDeadZone", "id", "remove", "attachGamepad",
+  "bind", "unbind", "unbindAll", "removeAction", "update"
+}
+
+Lynput.s_reservedCharacters = {
+  "+", "-", "*", "/", "%", "^", "#", "==", "~=", "<=", ">=", "<", ">",
+  "=", "(", ")", "{", "}", "[", "]", ";", ":", ",", ".", "..", "..."  
 }
 
 ----------------
@@ -75,12 +83,18 @@ local function _isActionValid(action)
     return false
   end -- if not string
   
-  for _, reservedName in ipairs(Lynput.s_reservedName) do
+  for _, reservedName in ipairs(Lynput.s_reservedNames) do
     if reservedName == action then
       return false
     end -- if action name is reserved
   end -- for each reserved name
-  
+
+  for _, reservedChar in ipairs(Lynput.s_reservedCharacters) do
+    if string.find(action, reservedChar) then
+      return false
+    end -- if action name contains reserved characters
+  end -- for each reserved character
+
   return true
 end
 
