@@ -31,6 +31,7 @@ Lynput.s_mouseButtons = {
   ["1"]="LMB", ["2"]="RMB", ["3"]="MMB", ["x1"]="MB4", ["x2"]="MB5"
 }
 
+-- TODO: Rename G_LEFT_STICK and G_RIGHT_STICK to G_LEFTSTICK and G_RIGHTSITCK
 Lynput.s_gamepadButtons = {
   ["a"]="G_A", ["b"]="G_B", ["x"]="G_X", ["y"]="G_Y",
   ["back"]="G_BACK", ["guide"]="G_GUIDE", ["start"]="G_START",
@@ -40,6 +41,7 @@ Lynput.s_gamepadButtons = {
   ["dpleft"]="G_DPAD_LEFT", ["dpright"]="G_DPAD_RIGHT"
 }
 
+-- TODO: Rename sticks as showed above
 Lynput.s_gamepadAxes = {
   ["leftx"]="G_LEFT_STICK_X", ["lefty"]="G_LEFT_STICK_Y",
   ["rightx"]="G_RIGHT_STICK_X", ["righty"]="G_RIGHT_STICK_Y",

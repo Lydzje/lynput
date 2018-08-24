@@ -18,7 +18,7 @@
 - [ ] ...
 
 ## Lynput gamepad map
-Analog input hasn't been implemented yet, that's why they do not appear in the map that follows.
+Analog input will appear in the map that follows soon.
 
 ![xbox_360_controller_map](res/xbox_360_controller.png)
 
