@@ -169,19 +169,36 @@ end
 
 -- @param gamepad is a Lynput gamepad string name (e.g., "GPAD_1", "GPAD_2", ..., "GPAD_N")
 function Lynput:attachGamepad(gamepad)
-  -- TODO: More code, this needs to detach previous Lynput gamepad
+  -- TODO: More code, this needs to check if the parameter given is like expected
   
   self.gpad = gamepad
 end
 
 
-function Lynput:bind(action, commands)
-  -- Transforms 1 input to a table
-  if type(commands) == "string" then
+function Lynput:bind(action, commands)  
+  -- Type checking for argument #1
+  assert(
+    type(action) == "string",
+    "bad argument #1 to 'Lynput:bind' (string expected, got " .. type(action) .. ")" ..
+      "\nCheck the stack traceback to know where have been passed the invalid arguments"
+  )
+  
+  -- Transforms 1 command to a table
+  if type(commands) ~= "table" then
     local command = commands
     commands = {}
     commands[1] = command
   end -- if only one command was given
+
+  -- Type checking for argument #2
+  for i, command in ipairs(commands) do
+    assert(
+      type(command) == "string",
+      "bad argument #2 to 'Lynput:bind' (string or table of strings expected, got " ..
+	type(command) .. " in element #" .. i .. ")" ..
+	"\nCheck the stack traceback to know where have been passed the invalid arguments"
+    )
+  end -- for each element in commands table
 
   -- Process command
   for _, command in ipairs(commands) do
@@ -194,6 +211,7 @@ function Lynput:bind(action, commands)
     )
     -- Is command valid?
     local commandValid, state, input = _isCommandValid(command)
+    -- TODO: Use a "check the manual for commands format" instead of explaining it here
     assert(
       commandValid,
       "Could not bind command->" .. command ..

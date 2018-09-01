@@ -9,7 +9,6 @@ function love.load()
   lynput:bind("releasing", {"release r", "release RMB", "release G_B"})
   lynput:bind("holding", {"hold h", "hold MMB", "hold G_X"})
 
-  lynput:unbind("pressing", "press LMB")
   lynput:unbindAll("holding")
   
   lynput:bind("moveLeft", {"-100:-50 G_LEFTSTICK_X"})
