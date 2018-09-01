@@ -238,13 +238,30 @@ end
 
 
 function Lynput:unbind(action, commands)
+  -- Type checking for argument #1
+  assert(
+    type(action) == "string",
+    "bad argument #1 to 'Lynput:unbind' (string expected, got " .. type(action) .. ")" ..
+      "\nCheck the stack traceback to know where have been passed the invalid arguments"
+  )
+  
   -- Transforms 1 command to a table
-  if type(commands) == "string" then
+  if type(commands) ~= "table" then
     local command = commands
     commands = {}
     commands[1] = command
   end -- if only one command was given
 
+  -- Type checking for argument #2
+  for i, command in ipairs(commands) do
+    assert(
+      type(command) == "string",
+      "bad argument #2 to 'Lynput:unbind' (string or table of strings expected, got " ..
+	type(command) .. " in element #" .. i .. ")" ..
+	"\nCheck the stack traceback to know where have been passed the invalid arguments"
+    )
+  end -- for each element in commands table
+  
   -- Process command
   for _, command in ipairs(commands) do
     -- Is action set?

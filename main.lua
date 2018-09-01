@@ -15,7 +15,7 @@ function love.load()
   lynput:bind("moveRight", {"50:100 G_LEFTSTICK_X"})
 
   lynput:unbind("moveRight", "50:100 G_LEFTSTICK_X")
-
+  
   lynput:bind("RTing", "0:100 G_RT")
 end
 
