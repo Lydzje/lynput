@@ -297,6 +297,13 @@ end
 
 
 function Lynput:unbindAll(action)
+  -- Type checking for argument #1
+  assert(
+    type(action) == "string",
+    "bad argument #1 to 'Lynput:unbindAll' (string expected, got " .. type(action) .. ")" ..
+      "\nCheck the stack traceback to know where have been passed the invalid arguments"
+  )
+  
   -- Is action set?
   assert(
     self[action] ~= nil,
@@ -317,6 +324,13 @@ end
 
 
 function Lynput:removeAction(action)
+  -- Type checking for argument #1
+  assert(
+    type(action) == "string",
+    "bad argument #1 to 'Lynput:removeAction' (string expected, got " .. type(action) .. ")" ..
+      "\nCheck the stack traceback to know where have been passed the invalid arguments"
+  )
+  
   -- Is action set?
   assert(
     self[action] ~= nil,
