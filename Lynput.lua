@@ -22,6 +22,7 @@ Lynput.s_reservedNames = {
 Lynput.s_reservedCharacters = {
   -- FIXME: There is no need to repeat characters, by checking for '=' operators like '<=' 
   -- and '>=' are also being checked. Just check for characters, no the operators
+  -- TODO: Include space
   "+", "-", "*", "/", "%", "^", "#", "==", "~=", "<=", ">=", "<", ">",
   "=", "(", ")", "{", "}", "[", "]", ";", ":", ",", ".", "..", "..."  
 }
