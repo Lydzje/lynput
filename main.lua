@@ -17,6 +17,10 @@ function love.load()
   lynput:unbind("moveRight", "50:100 G_LEFTSTICK_X")
   
   lynput:bind("RTing", "0:100 G_RT")
+
+  lynput:bind("pressAny", "press any")
+  lynput:bind("releaseAny", "release any")
+  lynput:bind("holdAny", "hold any")
 end
 
 
@@ -25,15 +29,15 @@ function love.update(dt)
     love.event.quit()
   end -- if exit
 
-  if lynput.pressedAny then
+  if lynput.pressAny then
     print("Pressed ANY")
   end --
 
-  if lynput.releasedAny then
+  if lynput.releaseAny then
     print("Released ANY")
   end --
 
-  if lynput.holdingAny then
+  if lynput.holdAny then
     print("Holding ANY")
   end
   
