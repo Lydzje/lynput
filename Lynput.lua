@@ -16,7 +16,8 @@ Lynput.s_reservedNames = {
   -- Reserved by Classic is not supported since Lynput won't require any library in future
   -- Reserved by Lynput
   "inputsSet", "gpad", "gpadDeadZone", "id", "remove", "attachGamepad",
-  "bind", "unbind", "unbindAll", "removeAction", "update"
+  "bind", "unbind", "unbindAll", "removeAction", "update",
+  "pressedAny", "releasedAny", "holdingAny"
 }
 
 Lynput.s_reservedCharacters = {
@@ -58,6 +59,9 @@ function Lynput:new()
   -- Maps Lynput inputs and states to actions, inputsSet[state][action]
   self.inputsSet = {}
 
+  self.pressedAny  = false
+  self.releasedAny = false
+  self.holdingAny  = false
   -- TODO: Test gamepad support with more than 1 gamepad
   self.gpad = nil
   -- TODO: set and get dead zone
@@ -346,6 +350,9 @@ end
 function Lynput:update(dt)
   -- It's not possible to iterate actions through "self" because it
   -- also contains the inputsSet table and other data
+  self.pressedAny  = false
+  self.releasedAny = false
+  
   for _, states in pairs(self.inputsSet) do
     for state, actionSet in pairs(states) do
       if state == "press" or state == "release" then
@@ -378,6 +385,8 @@ end
 ---------------------------------
 function Lynput.onkeypressed(key)
   for _, lynput in pairs(Lynput.s_lynputs) do
+    lynput.pressedAny = true
+    lynput.holdingAny = true
     if lynput.inputsSet[key] then
       if lynput.inputsSet[key]["press"] then
 	local action = lynput.inputsSet[key]["press"]
@@ -394,6 +403,8 @@ end
 
 function Lynput.onkeyreleased(key)
   for _, lynput in pairs(Lynput.s_lynputs) do
+    lynput.releasedAny = true
+    lynput.holdingAny  = false
     if lynput.inputsSet[key] then
       if lynput.inputsSet[key]["release"] then
 	local action = lynput.inputsSet[key]["release"]

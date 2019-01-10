@@ -25,6 +25,18 @@ function love.update(dt)
     love.event.quit()
   end -- if exit
 
+  if lynput.pressedAny then
+    print("Pressed ANY")
+  end --
+
+  if lynput.releasedAny then
+    print("Released ANY")
+  end --
+
+  if lynput.holdingAny then
+    print("Holding ANY")
+  end
+  
   if lynput.pressing then
     print("Pressing")
   end -- if pressing
