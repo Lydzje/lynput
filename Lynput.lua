@@ -608,7 +608,7 @@ function Lynput.ongamepadadded(gamepad)
   while Lynput[gpad] do
     if Lynput[gpad]:getID() == gamepadID then
       return
-    end -- if gamepadID is already assgined
+    end -- if gamepadID is already assigned
     
     i = i +1
     gpad = "GPAD_" .. i
