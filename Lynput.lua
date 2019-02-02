@@ -71,6 +71,25 @@ function Lynput:new()
 end
 
 
+function Lynput.load_key_callbacks()
+  function love.keypressed(key) Lynput.onkeypressed(key) end
+  function love.keyreleased(key) Lynput.onkeyreleased(key) end
+end
+
+
+function Lynput.load_mouse_callbacks()
+  function love.mousepressed(x, y, button, istouch) Lynput.onmousepressed(button) end
+  function love.mousereleased(x, y, button, istouch) Lynput.onmousereleased(button) end
+end
+
+
+function Lynput.load_gamepad_callbacks()
+  function love.gamepadpressed(joystick, button) Lynput.ongamepadpressed(joystick:getID(), button) end
+  function love.gamepadreleased(joystick, button) Lynput.ongamepadreleased(joystick:getID(), button) end
+  function love.joystickadded(joystick) Lynput.ongamepadadded(joystick) end
+end
+
+
 function Lynput.update_(dt)
   for _, lynput in pairs(Lynput.s_lynputs) do
     lynput:update(dt)
@@ -185,7 +204,7 @@ function Lynput:bind(action, commands)
   assert(
     type(action) == "string",
     "bad argument #1 to 'Lynput:bind' (string expected, got " .. type(action) .. ")" ..
-      "\nCheck the stack traceback to know where have been passed the invalid arguments"
+      "\nCheck the stack traceback to know where the invalid arguments have been passed"
   )
   
   -- Transforms 1 command to a table
@@ -201,7 +220,7 @@ function Lynput:bind(action, commands)
       type(command) == "string",
       "bad argument #2 to 'Lynput:bind' (string or table of strings expected, got " ..
 	type(command) .. " in element #" .. i .. ")" ..
-	"\nCheck the stack traceback to know where have been passed the invalid arguments"
+	"\nCheck the stack traceback to know where the invalid arguments have been passed"
     )
   end -- for each element in commands table
 
@@ -247,7 +266,7 @@ function Lynput:unbind(action, commands)
   assert(
     type(action) == "string",
     "bad argument #1 to 'Lynput:unbind' (string expected, got " .. type(action) .. ")" ..
-      "\nCheck the stack traceback to know where have been passed the invalid arguments"
+      "\nCheck the stack traceback to know where the invalid arguments have been passed"
   )
   
   -- Transforms 1 command to a table
@@ -263,7 +282,7 @@ function Lynput:unbind(action, commands)
       type(command) == "string",
       "bad argument #2 to 'Lynput:unbind' (string or table of strings expected, got " ..
 	type(command) .. " in element #" .. i .. ")" ..
-	"\nCheck the stack traceback to know where have been passed the invalid arguments"
+	"\nCheck the stack traceback to know where the invalid arguments have been passed"
     )
   end -- for each element in commands table
   
@@ -306,7 +325,7 @@ function Lynput:unbindAll(action)
   assert(
     type(action) == "string",
     "bad argument #1 to 'Lynput:unbindAll' (string expected, got " .. type(action) .. ")" ..
-      "\nCheck the stack traceback to know where have been passed the invalid arguments"
+      "\nCheck the stack traceback to know where the invalid arguments have been passed"
   )
   
   -- Is action set?
@@ -333,7 +352,7 @@ function Lynput:removeAction(action)
   assert(
     type(action) == "string",
     "bad argument #1 to 'Lynput:removeAction' (string expected, got " .. type(action) .. ")" ..
-      "\nCheck the stack traceback to know where have been passed the invalid arguments"
+      "\nCheck the stack traceback to know where the invalid arguments have been passed"
   )
   
   -- Is action set?
