@@ -1,5 +1,5 @@
 # Lynput (in development) :construction::construction:
-[![LÖVE VERSION](https://img.shields.io/badge/L%C3%96VE-11.1-%23E64A99.svg)](https://love2d.org/wiki/11.1)
+[![LÖVE VERSION](https://img.shields.io/badge/L%C3%96VE-0.10.0%2B-%23E0539A.svg)](https://love2d.org/wiki/Category:Versions)
 
 **Lynput** is an input library for LÖVE that  makes input handling very easy and intuitive 💙.
 
@@ -8,8 +8,8 @@
 - [x] Mouse buttons
 - [x] Gamepad buttons
 - [x] Gamepad analog input
-- [ ] Mouse position and movement
 - [ ] Touch screen
+- [ ] ...
 
 ## Features
 - [x] Multiple independent input objects
