@@ -1,7 +1,14 @@
--- TODO: Implementation without libraries
-Object = require("lib.classic.classic")
+local Lynput = {}
+Lynput.__index = Lynput
 
-Lynput = Object:extend()
+setmetatable(
+  Lynput,
+    {
+      __call = function (cls, ...)
+	return cls.new(...)
+      end,
+    }
+)
 
 Lynput.s_lynputs = {}
 Lynput.s_idCount = 0
@@ -54,7 +61,8 @@ Lynput.s_gamepadAxes = {
 -- }
 
 
-function Lynput:new()
+function Lynput.new()
+  local self = setmetatable({}, Lynput)
   -- Maps Lynput inputs and states to actions, inputsSet[state][action]
   self.inputsSet = {}
 
@@ -68,6 +76,8 @@ function Lynput:new()
   Lynput.s_lynputs[self.id] = self
   Lynput.s_idCount = Lynput.s_idCount + 1
   Lynput.s_count = Lynput.s_count + 1
+
+  return self
 end
 
 
@@ -605,3 +615,6 @@ function Lynput.ongamepadadded(gamepad)
   -- gpad does no exists, so we assign the new gamepad to it
   Lynput[gpad] = gamepad
 end
+
+
+return Lynput

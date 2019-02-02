@@ -1,5 +1,5 @@
 function love.load()
-  require("Lynput")
+  Lynput = require("Lynput")
   Lynput.load_key_callbacks()
   Lynput.load_mouse_callbacks()
   Lynput.load_gamepad_callbacks()
