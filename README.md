@@ -51,6 +51,7 @@ end
 - [x] Multiple independent input objects
 - [x] Easy and intuitive input binding and unbindig
 - [ ] Saving and loading input configuration files
+- [ ] Things like this: <code>lynput:bind("superPunch", "press G_RB+G_X")</code>
 - [ ] ...
 
 ## Lynput gamepad map
@@ -65,6 +66,6 @@ if not creativity then
     print(name)
 end -- if not creativity
 ```
-> Output:
+> **Output:**
 >
 > Lynput
