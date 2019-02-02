@@ -399,6 +399,8 @@ function Lynput:update(dt)
 	  max = tonumber(max)
 	  if val >= min and (math.abs(val) > self.gpadDeadZone) and val <= max then
 	    self[action] = true
+	  else
+	    self[action] = false
 	  end -- if val is in interval
 	end -- for each interval
       end -- if the axis is set
