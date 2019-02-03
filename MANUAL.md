@@ -1,6 +1,10 @@
 # Lynput Manual
 
+[![LÖVE VERSION](https://img.shields.io/badge/L%C3%96VE-0.10.0%2B-%23E0539A.svg)](https://love2d.org/wiki/Category:Versions)
+[![MIT LICENSE](https://img.shields.io/badge/license-MIT-%233DCE7A.svg)](LICENSE)
+
 ## Index
+- [Requirements](#requirements)
 - [Usage](#usage)
   - [Basics](#basics)
   - [Lynput callbacks](#lynput-callbacks)
@@ -16,6 +20,9 @@
   - [Names that can't be used as an action](#names-that-cant-be-used-as-an-action)
 - [All available functions](#all-available-functions)
 - [License](#license)
+
+## Requirements
+Lynput requires LÖVE version <code>0.10.0</code> or later.
 
 ## Usage
 ### Basics
@@ -237,3 +244,6 @@ In the case above, <code>pause</code>, the first argument, is the action. There 
 | <code>Lynput:unbind(action, commands)</code> 	| Unbinds commands from an action for the calling Lynput object     	| <code>controls:unbind("jump", "press space")</code> 	|
 | <code>Lynput:unbindAll(action)</code>        	| Unbinds all commands from an action for the calling Lynput object 	| <code>controls:unbindAll("jump")</code>             	|
 | <code>Lynput:removeAction(action)</code>     	| Removes an action of the calling Lynput object                    	| <code>controls:removeAction("jump")</code>          	|
+
+## License
+This software is licensed under the MIT license. Check the details by clicking [here](LICENSE).
