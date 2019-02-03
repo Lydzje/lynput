@@ -42,10 +42,11 @@ function love.update(dt)
 end
 ```
 
-SEE THE [MANUAL](MANUAL.md) FOR MORE DETAILS.
-
 ## Installation
 Just download the [<code>Lynput.lua</code>](Lynput.lua) file. Place it anywhere you want inside your game folder, just be careful with the path when requiring the library. Also remember that this file name starts with a capital letter.
+
+## Usage
+See <code>[MANUAL](MANUAL.md)</code> for more information.
 
 ## Devices supported
 - [x] Keyboard
