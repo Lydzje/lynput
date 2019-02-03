@@ -54,7 +54,7 @@ end
 ```
 
 ## Installation
-Just download the [<code>Lynput.lua</code>](https://github.com/Lydzje/lynput/releases/latest) file. Place it anywhere you want inside your game folder, just be careful with the path when requiring the library. Also remember that this file name starts with a capital letter.
+Just download the [<code>latest release version of Lynput.lua</code>](https://github.com/Lydzje/lynput/releases/latest) and extract the contents from the zip file. Place the <code>Lynput.lua</code> file anywhere you want inside your game folder, just be careful with the path when requiring the library. Also remember that this file name starts with a capital letter.
 
 ## Usage
 See <code>[MANUAL](MANUAL.md)</code> for more information.
