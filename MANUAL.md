@@ -5,6 +5,7 @@
 
 ## Index
 - [Requirements](#requirements)
+- [Installation](#installation)
 - [Usage](#usage)
   - [Basics](#basics)
   - [Lynput callbacks](#lynput-callbacks)
@@ -23,6 +24,9 @@
 
 ## Requirements
 Lynput requires LÖVE version <code>0.10.0</code> or later.
+
+## Installation
+Just download the <code>Lynput.lua</code> file. Place it anywhere you want inside your game folder, just be careful with the path when requiring the library. Also remember that this file name starts with a capital letter.
 
 ## Usage
 ### Basics

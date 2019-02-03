@@ -42,6 +42,9 @@ end
 
 SEE THE [MANUAL](MANUAL.md) FOR MORE DETAILS.
 
+## Installation
+Just download the <code>Lynput.lua</code> file. Place it anywhere you want inside your game folder, just be careful with the path when requiring the library. Also remember that this file name starts with a capital letter.
+
 ## Devices supported
 - [x] Keyboard
 - [x] Mouse buttons
@@ -67,3 +70,6 @@ end -- if not creativity
 > **Output:**
 >
 > Lynput
+
+## License
+This software is licensed under the MIT license. Check the details by clicking [here](LICENSE).
