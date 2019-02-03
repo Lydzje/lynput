@@ -11,6 +11,8 @@
   - [Mouse](#mouse)
   - [Gamepad](#gamepad)
   - [Configuring multiple inputs at once](#configuring-multiple-inputs-at-once)
+  - [The "any" input](#the-any-input)
+  - [I've bind my controls, what's next?](#ive-bind-my-controls-whats-next)
   - [Names that can't be used as an action](#names-that-cant-be-used-as-an-action)
 - [License](#license)
 
@@ -178,8 +180,34 @@ playerControl:bind(
 )
 ```
 
+### The "any" input
+Imagine you are making a game that starts with a intro with some logos, clips and other stuff, and then you want a screen title saying "Press any button to start". How would you do that with Lynput? It's really easy, you just need to bind all keys to an action called any :alien:. I'm just joking lol, for that kind of purposes there is an input called <code>any</code>. To make that screen title control you'd do:
+
+```lua
+control:bind("start", "press any")
+```
+
+### I've bind my controls, what's next?
+Now, you need to check if your controls have been triggered. You can do this in your <code>update</code> functions as follows:
+
+```lua
+if playerControl.moveLeft then moveLeft() end
+if playerControl.moveRight then moveRight() end
+if playerControl.moveUp then moveUp() end
+if playerControl.moveDown then moveDown() end
+if playerControl.jump then jump() end
+if playerControl.shoot then shoot() end
+if control.start then goToMainMenu() end
+```
+
 ### Names that can't be used as an action
-You cannot use [words or characters reserved by Lua](https://www.lua.org/manual/5.1/manual.html#2.1) or Lynput (see table below).
+What's an action? Well, for Lynput an action is the name you give to the thing you want the player to do. If you want your player to pause the game by pressing <code>p</code> you'd do: 
+
+```lua
+playerControls:bind("pause", "press p")
+```
+
+In the case above, <code>pause</code>, the first argument, is the action. There is no problem if you call your action "pause", but you cannot use [words or characters reserved by Lua](https://www.lua.org/manual/5.1/manual.html#2.1) or Lynput (see table below).
 
 |     Reserved by Lynput     	|
 |:--------------------------:	|
