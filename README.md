@@ -1,6 +1,7 @@
 # Lynput
 
 [![LÖVE VERSION](https://img.shields.io/badge/L%C3%96VE-0.10.0%2B-%23E0539A.svg)](https://love2d.org/wiki/Category:Versions)
+[![MIT LICENSE](https://img.shields.io/badge/license-MIT-%233DCE7A.svg)](LICENSE)
 
 ## What is Lynput?
 **Lynput** is an input library for [LÖVE](https://love2d.org/) that  makes input handling very easy and intuitive 💙. It will make you able to do things like this:
