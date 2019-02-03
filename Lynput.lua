@@ -218,6 +218,19 @@ function Lynput:attachGamepad(gamepad)
 end
 
 
+function Lynput:getAxis(axis)
+  for loveAxis, lynputAxis in pairs(Lynput.s_gamepadAxes) do
+    if axis == loveAxis or axis == lynputAxis then
+      return Lynput[self.gpad]:getGamepadAxis(loveAxis) * 100
+    end
+  end
+
+  error(
+    "Axis->" .. axis .. " is not a valid name. Use LÖVE or Lynput names for axes."
+  )
+end
+
+
 function Lynput:bind(action, commands)  
   -- Type checking for argument #1
   assert(

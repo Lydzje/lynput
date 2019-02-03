@@ -33,17 +33,19 @@ function love.update(dt)
     love.event.quit()
   end -- if exit
 
-  if lynput.pressAny then
-    print("Pressed ANY")
-  end --
+  -- if lynput.pressAny then
+  --   print("Pressed ANY")
+  -- end --
 
-  if lynput.releaseAny then
-    print("Released ANY")
-  end --
+  -- if lynput.releaseAny then
+  --   print("Released ANY")
+  -- end --
 
-  if lynput.holdAny then
-    print("Holding ANY")
-  end
+  -- if lynput.holdAny then
+  --   print("Holding ANY")
+  -- end
+
+  print(lynput:getAxis("righty"))
   
   if lynput.pressing then
     print("Pressing")
