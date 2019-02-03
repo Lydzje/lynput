@@ -10,7 +10,8 @@
   - [Keyboard](#keyboard)
   - [Mouse](#mouse)
   - [Gamepad](#gamepad)
-  - [Format for an action name](#format-for-an-action-name)
+  - [Configuring multiple inputs at once](#configuring-multiple-inputs-at-once)
+  - [Names that can't be used as an action](#names-that-cant-be-used-as-an-action)
 - [License](#license)
 
 ## Usage
@@ -45,7 +46,6 @@ Lynput.load_key_callbacks()
 ```
 To load them by yourself, override this love functions as indicated:
 ```lua
--- Write the code below to load them by yourself
 function love.keypressed(key)
   -- your stuff
   Lynput.onkeypressed(key)
@@ -105,18 +105,94 @@ function love.joystickadded(joystick)
 end
 ```
 
-### Format for an action name
-It's not possible to use any name for an action because there are some reserved words and characters that can't be used. Those names are:
+### Input states
+For now, there are two kinds of states for inputs: **button states** and **axis states**.
 
-TODO: BETTER FORMAT
+#### Button states
+Button states indicates the state of a button :sweat_smile:, and those can be: <code>press</code>, <code>release</code>, <code>hold</code>
+So if you want the player to move left when holding left arrow, you'd do:
+```lua
+playerControl:bind("moveLeft", "hold left")
+```
 
-and, break, do, else, elseif, end, false, for, function, if, in, local, nil, not, or, repeat, return, then, true, until, while, inputsSet, gpad, gpadDeadZone, id, remove, attachGamepad, bind, unbind, unbindAll, removeAction, update
+#### Axis states
+Axis states indicates the state of an axis :unamused:, and since its state is a number and it depends on how much you move your sticks or triggers, going from -1 to +1 in LÖVE (0 to +1 for triggers like G_LT or G_RT), there are infinite states :fearful:. 
 
-or anyone that contains the characters below:
+![axes](res/axes.png)
 
-FIXME: Remove operators, leave only characters
+But don't worry, we are not going to specify an specific state, but an interval, and we are going to multiply it by 100 because it's easier to read. So, if you want the player to move left when moving the left stick of a gamepad along the x axis, you'd do:
+```lua
+playerControl:bind("moveLeft", "-100:0 G_LEFTSTICK_X") -- It won't be -100:0, but -100:-30 because Lynput has a default dead zone of 30
+```
+To make the player move right:
+```lua
+playerControl:bind("moveRight", "0:100 G_LEFTSTICK_X") -- It won't be 0:100, but -100:-30 because Lynput has a default dead zone of 30
+```
 
-+, -, *, /, %, ^, #, ==, ~=, <=, >=, <, >, =, (, ), {, }, [, ], ;, :, ,, ., .., ... 
+### Keyboard
+To specify a key you just need to know [how LÖVE names that key](https://love2d.org/wiki/KeyConstant). Then if you want the player to jump by pressing <code>space</code>, you'd do:
+```lua
+playerControl:bind("jump", "press space")
+```
 
-## License
-Soon.
+### Mouse
+To specify a mouse button you just need to know how Lynput names them (see image below), since LÖVE uses numbers and Lynput can't because they are for keyboard keys.
+
+![mouse](res/mouse.png)
+
+Then if you want the player to shoot by pressing <code>left click</code>, you'd do:
+```lua
+playerControl:bind("shoot", "press LMB")
+```
+
+### Gamepad
+In order to use gamepads, we have to bind a Lynput object with a gamepad. You can do this by:
+
+```lua
+playerControl:attachGamepad("GPAD_1") -- This will be the gamepad number 1, for the second one use 2, third 3, and so on
+```
+
+Once it's done, you can start to configure your controls.
+
+To specify a gamepad button or axis you just need to know how Lynput names them (see image below), since LÖVE uses names that Lynput can't because they are for keyboard keys.
+
+![xbox 360 controller](res/xbox_360_controller.png)
+
+Then if you want the player to jump by pressing <code>A</code> and move up with the <code>left stick Y axis</code>, you'd do:
+```lua
+playerControl:bind("jump", "press G_A")
+playerControl:bind("moveUp", "-100:0 G_LEFTSTICK_Y")
+```
+
+### Configuring multiple inputs at once
+If you want the player to move down using <code>down arrow</code>, <code>key s</code>, <code>dpad down</code> and <code>left stick Y axis</code>, you don't need to make four bindings. You can just do:
+```lua
+playerControl:bind(
+  "moveDown",
+  {
+    "hold down",
+    "hold s",
+    "hold G_DPAD_DOWN",
+    "0:100 G_LEFTSTICK_Y"
+  }
+)
+```
+
+### Names that can't be used as an action
+You cannot use [words or characters reserved by Lua](https://www.lua.org/manual/5.1/manual.html#2.1) or Lynput (see table below).
+
+|     Reserved by Lynput     	|
+|:--------------------------:	|
+|   <code>inputsSet</code>   	|
+|      <code>gpad</code>     	|
+|  <code>gpadDeadZone</code> 	|
+|       <code>id</code>      	|
+|     <code>remove</code>    	|
+| <code>attachGamepad</code> 	|
+|      <code>bind</code>     	|
+|     <code>unbind</code>    	|
+|   <code>unbindAll</code>   	|
+|  <code>removeAction</code> 	|
+|     <code>update</code>    	|
+
+
