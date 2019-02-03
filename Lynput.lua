@@ -399,6 +399,8 @@ function Lynput:update(dt)
 	  max = tonumber(max)
 	  if val >= min and (math.abs(val) > self.gpadDeadZone) and val <= max then
 	    self[action] = true
+	  else
+	    self[action] = false
 	  end -- if val is in interval
 	end -- for each interval
       end -- if the axis is set
@@ -606,7 +608,7 @@ function Lynput.ongamepadadded(gamepad)
   while Lynput[gpad] do
     if Lynput[gpad]:getID() == gamepadID then
       return
-    end -- if gamepadID is already assgined
+    end -- if gamepadID is already assigned
     
     i = i +1
     gpad = "GPAD_" .. i
