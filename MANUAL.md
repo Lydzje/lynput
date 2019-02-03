@@ -1,4 +1,4 @@
-# Lynput Manual (In progress) :construction::construction:
+# Lynput Manual
 
 ## Index
 - [Usage](#usage)
@@ -14,6 +14,7 @@
   - [The "any" input](#the-any-input)
   - [I've bind my controls, what's next?](#ive-bind-my-controls-whats-next)
   - [Names that can't be used as an action](#names-that-cant-be-used-as-an-action)
+- [All available functions](all-available-functions)
 - [License](#license)
 
 ## Usage
@@ -191,13 +192,13 @@ control:bind("start", "press any")
 Now, you need to check if your controls have been triggered. You can do this in your <code>update</code> functions as follows:
 
 ```lua
-if playerControl.moveLeft then moveLeft() end
-if playerControl.moveRight then moveRight() end
-if playerControl.moveUp then moveUp() end
-if playerControl.moveDown then moveDown() end
-if playerControl.jump then jump() end
-if playerControl.shoot then shoot() end
-if control.start then goToMainMenu() end
+if playerControl.moveLeft  then moveLeft()     end
+if playerControl.moveRight then moveRight()    end
+if playerControl.moveUp    then moveUp()       end
+if playerControl.moveDown  then moveDown()     end
+if playerControl.jump      then jump()         end
+if playerControl.shoot     then shoot()        end
+if control.start           then goToMainMenu() end
 ```
 
 ### Names that can't be used as an action
@@ -223,4 +224,16 @@ In the case above, <code>pause</code>, the first argument, is the action. There 
 |  <code>removeAction</code> 	|
 |     <code>update</code>    	|
 
-
+## All available functions
+| Function                        	| Description                                                       	| Example                                	|
+|---------------------------------	|-------------------------------------------------------------------	|----------------------------------------	|
+| Lynput.load_key_callbacks()     	| Sets all keyboard callbacks                                       	| Lynput.load_key_callbacks()            	|
+| Lynput.load_mouse_callbacks()   	| Sets all mouse callbacks                                          	| Lynput.load_mouse_callbacks()          	|
+| Lynput.load_gamepad_callbacks() 	| Sets all gamepad callbacks                                        	| Lynput.load_gamepad_callbacks()        	|
+| Lynput.update_(dt)              	| Update all Lynput objects                                         	| Lynput.update_(dt)                     	|
+| Lynput:remove()                 	| Remove the calling Lynput object                                  	| controls:remove()                      	|
+| Lynput:attachGamepad(gamepad)   	| Attachs a gamepad to the calling Lynput object                    	| controls:attachGamepad("GPAD_1")       	|
+| Lynput:bind(action, commands)   	| Binds commands to an action for the calling Lynput object         	| controls:bind("jump", "press space")   	|
+| Lynput:unbind(action, commands) 	| Unbinds commands from an action for the calling Lynput object     	| controls:unbind("jump", "press space") 	|
+| Lynput:unbindAll(action)        	| Unbinds all commands from an action for the calling Lynput object 	| controls:unbindAll("jump")             	|
+| Lynput:removeAction(action)     	| Removes an action of the calling Lynput object                    	| controls:removeAction("jump")          	|
