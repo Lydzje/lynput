@@ -185,6 +185,11 @@ playerControl:bind("jump", "press G_A")
 playerControl:bind("moveUp", "-100:0 G_LEFTSTICK_Y")
 ```
 
+But if <code>G_LEFTSTICK_Y</code> has a value of -10, <code>moveUp</code> will be false, why? Because Lynput sets a default dead zone of 30 for gamepads when creating a Lynput object. You can change the dead zone doing this:
+```lua
+playerControl.gpadDeadZone = 0
+```
+
 ### Configuring multiple inputs at once
 If you want the player to move down using <code>down arrow</code>, <code>key s</code>, <code>dpad down</code> and <code>left stick Y axis</code>, you don't need to make four bindings. You can just do:
 ```lua
@@ -251,6 +256,7 @@ In the case above, <code>pause</code>, the first argument, is the action. There 
 | <code>Lynput.update_(dt)</code>              	| Update all Lynput objects                                         	| <code>Lynput.update_(dt)</code>                     	|
 | <code>Lynput:remove()</code>                 	| Remove the calling Lynput object                                  	| <code>controls:remove()</code>                      	|
 | <code>Lynput:attachGamepad(gamepad)</code>   	| Attachs a gamepad to the calling Lynput object                    	| <code>controls:attachGamepad("GPAD_1")</code>       	|
+| <code>Lynput:getAxis(axis)</code>             | Returns the value of the specified axis. LÖVE and Lynput axes names can be both used. The value is the one LÖVE returns but multiplied by 100.                          | <code>controls:getAxis("G_LEFTSTICK_X")               |
 | <code>Lynput:bind(action, commands)</code>   	| Binds commands to an action for the calling Lynput object         	| <code>controls:bind("jump", "press space")</code>   	|
 | <code>Lynput:unbind(action, commands)</code> 	| Unbinds commands from an action for the calling Lynput object     	| <code>controls:unbind("jump", "press space")</code> 	|
 | <code>Lynput:unbindAll(action)</code>        	| Unbinds all commands from an action for the calling Lynput object 	| <code>controls:unbindAll("jump")</code>             	|
