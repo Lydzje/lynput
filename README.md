@@ -39,6 +39,8 @@ function love.update(dt)
 end
 ```
 
+SEE THE [MANUAL](MANUAL.md) FOR MORE DETAILS.
+
 ## Devices supported
 - [x] Keyboard
 - [x] Mouse buttons
@@ -53,11 +55,6 @@ end
 - [ ] Saving and loading input configuration files
 - [ ] Things like this: <code>lynput:bind("superPunch", "press G_RB+G_X")</code>
 - [ ] ...
-
-## Lynput gamepad map
-Analog input will appear in the map that follows soon.
-
-![xbox_360_controller_map](res/xbox_360_controller.png)
 
 ## Lynput?
 ```lua
