@@ -3,6 +3,8 @@
 [![LÖVE VERSION](https://img.shields.io/badge/L%C3%96VE-0.10.0%2B-%23E0539A.svg)](https://love2d.org/wiki/Category:Versions)
 [![MIT LICENSE](https://img.shields.io/badge/license-MIT-%233DCE7A.svg)](LICENSE)
 
+![lynput logo](res/logo.png)
+
 ## Index
 - [Requirements](#requirements)
 - [Installation](#installation)
