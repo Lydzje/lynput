@@ -22,6 +22,8 @@
   - [I've bind my controls, what's next?](#ive-bind-my-controls-whats-next)
   - [Names that can't be used as an action](#names-that-cant-be-used-as-an-action)
 - [All available functions](#all-available-functions)
+- [I've found a bug, what do I do?](#ive-found-a-bug-what-do-i-do)
+- [Contact](#contact)
 - [License](#license)
 
 ## Requirements
@@ -250,6 +252,12 @@ In the case above, <code>pause</code>, the first argument, is the action. There 
 | <code>Lynput:unbind(action, commands)</code> 	| Unbinds commands from an action for the calling Lynput object     	| <code>controls:unbind("jump", "press space")</code> 	|
 | <code>Lynput:unbindAll(action)</code>        	| Unbinds all commands from an action for the calling Lynput object 	| <code>controls:unbindAll("jump")</code>             	|
 | <code>Lynput:removeAction(action)</code>     	| Removes an action of the calling Lynput object                    	| <code>controls:removeAction("jump")</code>          	|
+
+## I've found a bug, what do I do?
+If you want to report a bug (please do!), [open a new issue](https://github.com/Lydzje/lynput/issues). As another option just [contact me](#contact).
+
+## Contact
+If you need to contact me don't hesitate to [send me an email](mailto:to.lydzje@gmail.com). If you preffer other way, please visit the contact section in my website [lydzje.com](https://lydzje.com).
 
 ## License
 This software is licensed under the MIT license. Check the details by clicking [here](LICENSE).
