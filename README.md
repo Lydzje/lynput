@@ -5,6 +5,17 @@
 
 ![lynput logo](res/logo.png)
 
+## Index
+- [What is Lynput?](#what-is-lynput)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Devices supported](#devices-supported)
+- [Features](#features)
+- [What does Lynput mean?](#what-does-lynput-mean)
+- [I've found a bug, what do I do?](#ive-found-a-bug-what-do-i-do)
+- [Contact](#contact)
+- [License](#license)
+
 ## What is Lynput?
 **Lynput** is an input library for [LÖVE](https://love2d.org/) that  makes input handling very easy and intuitive 💙. It will make you able to do things like this:
 
@@ -63,7 +74,7 @@ See <code>[MANUAL](MANUAL.md)</code> for more information.
 - [ ] Things like this: <code>lynput:bind("superPunch", "press G_RB+G_X")</code>
 - [ ] ...
 
-## Lynput?
+## What does Lynput mean?
 ```lua
 if not creativity then
     name = Lydzje + input
