@@ -62,7 +62,7 @@ To make Lynput load the keyboard callbacks:
 ```lua
 Lynput.load_key_callbacks()
 ```
-To load them by yourself, override this love functions as indicated:
+To load them by yourself, override this LÖVE functions as indicated:
 ```lua
 function love.keypressed(key)
   -- your stuff
@@ -82,7 +82,7 @@ To make Lynput load the mouse callbacks:
 ```lua
 Lynput.load_mouse_callbacks()
 ```
-To load them by yourself, override this love functions as indicated:
+To load them by yourself, override this LÖVE functions as indicated:
 ```lua
 function love.mousepressed(x, y, button, istouch)
   -- your stuff
@@ -102,7 +102,7 @@ To make Lynput load the gamepad callbacks:
 ```lua
 Lynput.load_gamepad_callbacks()
 ```
-To load them by yourself, override this love functions as indicated:
+To load them by yourself, override this LÖVE functions as indicated:
 ```lua
 function love.gamepadpressed(joystick, button)
   -- your stuff
@@ -127,7 +127,8 @@ end
 For now, there are two kinds of states for inputs: **button states** and **axis states**.
 
 #### Button states
-Button states indicates the state of a button :sweat_smile:, and those can be: <code>press</code>, <code>release</code>, <code>hold</code>
+Button states indicates the state of a button :sweat_smile:, and those can be: <code>press</code>, <code>release</code> or <code>hold</code>.
+
 So if you want the player to move left when holding left arrow, you'd do:
 ```lua
 playerControl:bind("moveLeft", "hold left")
@@ -136,9 +137,11 @@ playerControl:bind("moveLeft", "hold left")
 #### Axis states
 Axis states indicates the state of an axis :unamused:, and since its state is a number and it depends on how much you move your sticks or triggers, going from -1 to +1 in LÖVE (0 to +1 for triggers like G_LT or G_RT), there are infinite states :fearful:. 
 
+But don't worry, we are not going to specify an specific state, but an interval, and we are going to multiply it by 100 because it's easier to read.
+
 ![axes](res/axes.png)
 
-But don't worry, we are not going to specify an specific state, but an interval, and we are going to multiply it by 100 because it's easier to read. So, if you want the player to move left when moving the left stick of a gamepad along the x axis, you'd do:
+So, if you want the player to move left when moving the left stick of a gamepad along the x axis, you'd do:
 ```lua
 playerControl:bind("moveLeft", "-100:0 G_LEFTSTICK_X") -- It won't be -100:0, but -100:-30 because Lynput has a default dead zone of 30
 ```
