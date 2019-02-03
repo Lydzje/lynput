@@ -74,5 +74,11 @@ end -- if not creativity
 >
 > Lynput
 
+## I've found a bug, what do I do?
+If you want to report a bug (please do!), [open a new issue](https://github.com/Lydzje/lynput/issues). As another option just [contact me](#contact).
+
+## Contact
+If you need to contact me don't hesitate to [send me an email](mailto:to.lydzje@gmail.com). If you preffer other way, please visit the contact section in my website [lydzje.com](https://lydzje.com).
+
 ## License
-This software is licensed under the MIT license. Check the details by clicking [here](LICENSE).
+This software is licensed under the MIT license. Check the details by clicking [here](LICENSE)
