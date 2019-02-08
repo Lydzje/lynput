@@ -185,6 +185,14 @@ playerControl:bind("jump", "press G_A")
 playerControl:bind("moveUp", "-100:0 G_LEFTSTICK_Y")
 ```
 
+You can also access to the analog value since it's stored in the action:
+```lua
+if playerControl.moveUp then player.x = player.x + player.speed * playerControl.moveUp * dt end
+
+-- Another example
+if controls.speed then car.speed(controls.speed) end
+```
+
 But if <code>G_LEFTSTICK_Y</code> has a value of -10, <code>moveUp</code> will be false, why? Because Lynput sets a default dead zone of 30 for gamepads when creating a Lynput object. You can change the dead zone doing this:
 ```lua
 playerControl.gpadDeadZone = 0
@@ -256,7 +264,6 @@ In the case above, <code>pause</code>, the first argument, is the action. There 
 | <code>Lynput.update_(dt)</code>              	| Update all Lynput objects                                         	| <code>Lynput.update_(dt)</code>                     	|
 | <code>Lynput:remove()</code>                 	| Remove the calling Lynput object                                  	| <code>controls:remove()</code>                      	|
 | <code>Lynput:attachGamepad(gamepad)</code>   	| Attachs a gamepad to the calling Lynput object                    	| <code>controls:attachGamepad("GPAD_1")</code>       	|
-| <code>Lynput:getAxis(axis)</code>             | Returns the value of the specified axis. LÖVE and Lynput axes names can be both used. The value is the one LÖVE returns but multiplied by 100.                          | <code>controls:getAxis("G_LEFTSTICK_X")               |
 | <code>Lynput:bind(action, commands)</code>   	| Binds commands to an action for the calling Lynput object         	| <code>controls:bind("jump", "press space")</code>   	|
 | <code>Lynput:unbind(action, commands)</code> 	| Unbinds commands from an action for the calling Lynput object     	| <code>controls:unbind("jump", "press space")</code> 	|
 | <code>Lynput:unbindAll(action)</code>        	| Unbinds all commands from an action for the calling Lynput object 	| <code>controls:unbindAll("jump")</code>             	|

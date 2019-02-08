@@ -45,7 +45,6 @@ function love.update(dt)
   --   print("Holding ANY")
   -- end
 
-  print(lynput:getAxis("righty"))
   
   if lynput.pressing then
     print("Pressing")
