@@ -75,7 +75,7 @@ function Lynput.new()
 
   self.gpad = nil
   -- TODO: Different deadzones for joysticks and triggers
-  self.gpadDeadZone = 30
+  self.gpadDeadZone = 10
   
   self.id = tostring(Lynput.s_idCount)
   Lynput.s_lynputs[self.id] = self
