@@ -136,6 +136,17 @@ end
 local function _isCommandValid(command)
   local stateValid, inputValid = false, false
   local state, input = string.match(command, "(.+)%s(.+)")
+
+  if not input then
+    if not command then
+      goto exit
+    end -- if not state
+
+    input = command
+    state = "-100:100"
+    stateValid = true
+    goto checkAxis
+  end -- if not input
   
   if not state or not input then
     goto exit
@@ -169,12 +180,16 @@ local function _isCommandValid(command)
     goto exit
   end -- if input == any
   
+  inputValid = pcall(love.keyboard.getScancodeFromKey, input)
+  
   for _, button in pairs(Lynput.s_mouseButtons) do
     if button == input then
       inputValid = true
       goto exit
     end -- if button == input
   end -- for each Lynput mouse button
+  
+  -- TODO: Touch screen
   
   for _, button in pairs(Lynput.s_gamepadButtons) do
     if button == input then
@@ -183,16 +198,13 @@ local function _isCommandValid(command)
     end -- if button == input
   end -- for each Lynput gamepad button
   
+  ::checkAxis::
   for _, axis in pairs(Lynput.s_gamepadAxes) do
     if axis == input then
       inputValid = true
       goto exit
     end -- if axis == input
   end -- for each Lynput gamepad axis
-
-  -- TODO: Touch screen
-  
-  inputValid = pcall(love.keyboard.getScancodeFromKey, input)
 
   ::exit::
 

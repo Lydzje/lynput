@@ -143,11 +143,11 @@ But don't worry, we are not going to specify an specific state, but an interval,
 
 So, if you want the player to move left when moving the left stick of a gamepad along the x axis, you'd do:
 ```lua
-playerControl:bind("moveLeft", "-100:0 G_LEFTSTICK_X") -- It won't be -100:0, but -100:-30 because Lynput has a default dead zone of 30
+playerControl:bind("moveLeft", "-100:0 G_LEFTSTICK_X") -- It won't be -100:0, but -100:-10 because Lynput has a default dead zone of 10
 ```
 To make the player move right:
 ```lua
-playerControl:bind("moveRight", "0:100 G_LEFTSTICK_X") -- It won't be 0:100, but -100:-30 because Lynput has a default dead zone of 30
+playerControl:bind("moveRight", "0:100 G_LEFTSTICK_X") -- It won't be 0:100, but -100:-10 because Lynput has a default dead zone of 10
 ```
 
 ### Keyboard
@@ -183,6 +183,7 @@ Then if you want the player to jump by pressing <code>A</code> and move up with 
 ```lua
 playerControl:bind("jump", "press G_A")
 playerControl:bind("moveUp", "-100:0 G_LEFTSTICK_Y")
+carControl:bind("speed", "G_RT") -- If an interval is not specified it will be min:max, 0:100 in this case, -100:100 for sticks
 ```
 
 You can also access to the analog value since it's stored in the action:
@@ -195,7 +196,7 @@ end
 if controls.speed then car.speed(controls.speed) end
 ```
 
-But if <code>G_LEFTSTICK_Y</code> has a value of -10, <code>moveUp</code> will be false, why? Because Lynput sets a default dead zone of 30 for gamepads when creating a Lynput object. You can change the dead zone doing this:
+But if <code>G_LEFTSTICK_Y</code> has a value of -10, <code>moveUp</code> will be false, why? Because Lynput sets a default dead zone of 10 for gamepads when creating a Lynput object. You can change the dead zone doing this:
 ```lua
 playerControl.gpadDeadZone = 0
 ```

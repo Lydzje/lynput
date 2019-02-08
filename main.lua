@@ -20,8 +20,8 @@ function love.load()
 
   lynput:unbind("moveRight", "50:100 G_LEFTSTICK_X")
   
-  lynput:bind("RTing", "0:100 G_RT")
-
+  lynput:bind("speed", "G_RT")
+  
   lynput:bind("pressAny", "press any")
   lynput:bind("releaseAny", "release any")
   lynput:bind("holdAny", "hold any")
@@ -67,8 +67,8 @@ function love.update(dt)
     print("Moving right")
   end -- if moveRight
 
-  if lynput.RTing then
-    print("RTing")
+  if lynput.speed then
+    print(lynput.speed)
   end -- if RTing
 
   
