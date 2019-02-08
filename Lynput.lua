@@ -28,8 +28,6 @@ Lynput.s_reservedNames = {
   "and", "break", "do", "else", "elseif", "end", "false", "for", 
   "function", "if", "in", "local", "nil", "not", "or", "repeat", 
   "return", "then", "true", "until", "while",
-  -- TODO: Remove the comment below when a standalone version comes up
-  -- Reserved by Classic is not supported since Lynput won't require any library in future
   -- Reserved by Lynput
   "inputsSet", "gpad", "gpadDeadZone", "id", "remove", "attachGamepad",
   "bind", "unbind", "unbindAll", "removeAction", "update"
@@ -75,9 +73,7 @@ function Lynput.new()
   -- Maps Lynput inputs and states to actions, inputsSet[state][action]
   self.inputsSet = {}
 
-  -- TODO: Test gamepad support with more than 1 gamepad
   self.gpad = nil
-  -- TODO: set and get dead zone
   -- TODO: Different deadzones for joysticks and triggers
   self.gpadDeadZone = 30
   
