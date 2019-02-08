@@ -187,7 +187,9 @@ playerControl:bind("moveUp", "-100:0 G_LEFTSTICK_Y")
 
 You can also access to the analog value since it's stored in the action:
 ```lua
-if playerControl.moveUp then player.x = player.x + player.speed * playerControl.moveUp * dt end
+if playerControl.moveUp then 
+  player.x = player.x + player.speed * playerControl.moveUp * dt 
+end
 
 -- Another example
 if controls.speed then car.speed(controls.speed) end
