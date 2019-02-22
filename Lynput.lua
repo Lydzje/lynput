@@ -138,7 +138,7 @@ local function _isCommandValid(command)
   local state, input = string.match(command, "(.+)%s(.+)")
   
   if not state or not input then
-    goto exit
+    return stateValid and inputValid, state, input
   end -- if state or input are nil
   
   -- Process state
@@ -154,7 +154,7 @@ local function _isCommandValid(command)
     max = tonumber(max)
 
     if not min or not max then
-      goto exit
+      return stateValid and inputValid, state, input
     end -- if min or max are nil
 
     stateValid =
@@ -163,40 +163,72 @@ local function _isCommandValid(command)
       max <= 100
   end -- if state is not meant for buttons
 
-  -- Process input
-  if input == "any" then
-    inputValid = true
-    goto exit
-  end -- if input == any
-  
-  for _, button in pairs(Lynput.s_mouseButtons) do
-    if button == input then
-      inputValid = true
-      goto exit
-    end -- if button == input
-  end -- for each Lynput mouse button
-  
-  for _, button in pairs(Lynput.s_gamepadButtons) do
-    if button == input then
-      inputValid = true
-      goto exit
-    end -- if button == input
-  end -- for each Lynput gamepad button
-  
-  for _, axis in pairs(Lynput.s_gamepadAxes) do
-    if axis == input then
-      inputValid = true
-      goto exit
-    end -- if axis == input
-  end -- for each Lynput gamepad axis
-
-  -- TODO: Touch screen
-  
-  inputValid = pcall(love.keyboard.getScancodeFromKey, input)
-
-  ::exit::
+  inputValid = _isInputValid(input)
 
   return stateValid and inputValid, state, input
+end
+
+local function _isInputValid(input)
+  local inputValid = false
+  local inputs = {}
+
+  if(string.match(input, "%+?([^%+]+)%+?"))then
+    for match in string.gmatch(input, "%+?([^%+]+)%+?")do
+      table.insert(inputs, match)
+    end
+  else
+    table.insert(inputs, input)
+  end
+
+  -- Process input
+  for _,input in pairs(inputs) do
+    if input == "any" then
+      if(#inputs > 1)then
+        inputValid = false
+      else
+        inputValid = true
+      end
+
+      return inputValid
+    end -- if input == any
+    
+    for _, button in pairs(Lynput.s_mouseButtons) do
+      if button == input then
+        inputValid = true
+        if #inputs == 1 then
+          return inputValid
+        end
+        break
+      end -- if button == input
+    end -- for each Lynput mouse button
+    
+    for _, button in pairs(Lynput.s_gamepadButtons) do
+      if button == input then
+        inputValid = true
+        if #inputs == 1 then
+          return inputValid
+        end
+        break
+      end -- if button == input
+    end -- for each Lynput gamepad button
+    
+    for _, axis in pairs(Lynput.s_gamepadAxes) do
+      if axis == input then
+        inputValid = true
+        if #inputs == 1 then
+          return inputValid
+        end
+        break
+      end -- if axis == input
+    end -- for each Lynput gamepad axis
+
+    inputValid = pcall(love.keyboard.getScancodeFromKey, input)
+    if(not inputValid)then
+      break
+    end
+  end
+  -- TODO: Touch screen
+  return inputValid
 end
 
 
