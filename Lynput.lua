@@ -132,42 +132,6 @@ local function _isActionValid(action)
   return true
 end
 
-
-local function _isCommandValid(command)
-  local stateValid, inputValid = false, false
-  local state, input = string.match(command, "(.+)%s(.+)")
-  
-  if not state or not input then
-    return stateValid and inputValid, state, input
-  end -- if state or input are nil
-  
-  -- Process state
-  stateValid =
-    state == "release" or
-    state == "press" or
-    state == "hold"
-
-  if not stateValid then
-    local min, max = string.match(state, "(.+)%:(.+)")
-
-    min = tonumber(min)
-    max = tonumber(max)
-
-    if not min or not max then
-      return stateValid and inputValid, state, input
-    end -- if min or max are nil
-
-    stateValid =
-      min < max and
-      min >= -100 and
-      max <= 100
-  end -- if state is not meant for buttons
-
-  inputValid = _isInputValid(input)
-
-  return stateValid and inputValid, state, input
-end
-
 local function _isInputValid(input)
   local inputValid = false
   local inputs = {}
@@ -182,6 +146,7 @@ local function _isInputValid(input)
 
   -- Process input
   for _,input in pairs(inputs) do
+    print(input)
     if input == "any" then
       if(#inputs > 1)then
         inputValid = false
@@ -222,7 +187,10 @@ local function _isInputValid(input)
       end -- if axis == input
     end -- for each Lynput gamepad axis
 
-    inputValid = pcall(love.keyboard.getScancodeFromKey, input)
+    if(not inputValid)then
+      inputValid = pcall(love.keyboard.getScancodeFromKey, input)
+    end
+    
     if(not inputValid)then
       break
     end
@@ -231,6 +199,44 @@ local function _isInputValid(input)
   return inputValid
 end
 
+local function _isCommandValid(command)
+  local stateValid, inputValid = false, false
+  local state, input = string.match(command, "(.+)%s(.+)")
+  
+  if not state or not input then
+    print('State and Input couldn`t be extracted.')
+    return stateValid and inputValid, state, input
+  end -- if state or input are nil
+  
+  -- Process state
+  stateValid =
+    state == "release" or
+    state == "press" or
+    state == "hold"
+
+  if not stateValid then
+    local min, max = string.match(state, "(.+)%:(.+)")
+
+    min = tonumber(min)
+    max = tonumber(max)
+
+    if not min or not max then
+      return stateValid and inputValid, state, input
+    end -- if min or max are nil
+
+    stateValid =
+      min < max and
+      min >= -100 and
+      max <= 100
+  end -- if state is not meant for buttons
+
+  print('Reached input validation step.')
+  inputValid = _isInputValid(input)
+
+  print(stateValid)
+  print(inputValid)
+  return stateValid and inputValid, state, input
+end
 
 function Lynput:remove()
   Lynput.s_lynputs[self.id] = nil
