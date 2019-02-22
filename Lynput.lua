@@ -8,6 +8,7 @@
 --
 
 local Lynput = {}
+local chordMatchExpression = "%+?([^%+]+)%+?"
 Lynput.__index = Lynput
 
 setmetatable(
@@ -72,6 +73,8 @@ function Lynput.new()
   local self = setmetatable({}, Lynput)
   -- Maps Lynput inputs and states to actions, inputsSet[state][action]
   self.inputsSet = {}
+  -- Maps Lynput chords and states to actions, chordsSet[state][action]
+  self.chordsSet = {}
 
   self.gpad = nil
   -- TODO: Different deadzones for joysticks and triggers
@@ -136,8 +139,8 @@ local function _isInputValid(input)
   local inputValid = false
   local inputs = {}
 
-  if(string.match(input, "%+?([^%+]+)%+?"))then
-    for match in string.gmatch(input, "%+?([^%+]+)%+?")do
+  if(string.match(input, chordMatchExpression))then
+    for match in string.gmatch(input, chordMatchExpression)do
       table.insert(inputs, match)
     end
   else
@@ -190,7 +193,7 @@ local function _isInputValid(input)
     if(not inputValid)then
       inputValid = pcall(love.keyboard.getScancodeFromKey, input)
     end
-    
+
     if(not inputValid)then
       break
     end
@@ -318,11 +321,19 @@ function Lynput:bind(action, commands)
       self[action] = false
     end -- if action not set
 
-    if not self.inputsSet[input] then
-      self.inputsSet[input] = {}
-    end -- if input hasn't already been set
+    if(not string.match(input, chordMatchExpression))then
+      if not self.inputsSet[input] then
+        self.inputsSet[input] = {}
+      end -- if input hasn't already been set
 
-    self.inputsSet[input][state] = action
+      self.inputsSet[input][state] = action
+    else
+      if not self.chordsSet[input] then
+        self.chordsSet[input] = {}
+      end
+
+      self.chordsSet[input][state] = action
+    end
   end -- for each command
 end
 
@@ -369,19 +380,33 @@ function Lynput:unbind(action, commands)
 	"  to action->" .. action .. ", the command is not set."
     )
     
-    self.inputsSet[input][state] = nil
-    local inputStates = self.inputsSet[input]
+    if(not string.match(input, chordMatchExpression)) then
+      self.inputsSet[input][state] = nil
 
-    local statesNum = 0
-    for state, _ in pairs(self.inputsSet[input]) do
-      statesNum = statesNum + 1
-    end -- for each state
+      local statesNum = 0
+      for state, _ in pairs(self.inputsSet[input]) do
+        statesNum = statesNum + 1
+      end -- for each state
 
-    if statesNum == 0 then
-      self.inputsSet[input] = nil
-    end -- if there are no more states set
+      if statesNum == 0 then
+        self.inputsSet[input] = nil
+      end -- if there are no more states set
 
-    self[action] = false
+      self[action] = false
+    else
+      self.chordsSet[input][state] = nil
+
+      local statesNum = 0
+      for state, _ in pairs(self.chordsSet[input]) do
+        statesNum = statesNum + 1
+      end -- for each state
+
+      if statesNum == 0 then
+        self.chordsSet[input] = nil
+      end -- if there are no more states set
+
+      self[action] = false
+    end
   end -- for each command
 end
 
@@ -404,11 +429,17 @@ function Lynput:unbindAll(action)
   for inputSet, states in pairs(self.inputsSet) do
     for state, actionSet in pairs(states) do
       if actionSet == action then
-	self.inputsSet[inputSet][state] = nil
+	     self.inputsSet[inputSet][state] = nil
       end -- if actionSet == action
     end -- for each inputSet state
   end -- for each input set
-  
+  for chordSet, states in pairs(self.chordsSet) do
+    for state, actionSet in pairs(states) do
+      if actionSet == action then
+        self.chordsSet[chordSet][state] = nil
+      end -- if actionSet == action
+    end -- for each chordSet state
+  end -- for each input set
   self[action] = false
 end
 
