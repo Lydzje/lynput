@@ -8,6 +8,7 @@
 --
 
 local Lynput = {}
+local chordMatchExpression = "%+?([^%+]+)%+?"
 Lynput.__index = Lynput
 
 setmetatable(
@@ -25,17 +26,17 @@ Lynput.s_count = 0
 
 Lynput.s_reservedNames = {
   -- Reserved by Lua
-  "and", "break", "do", "else", "elseif", "end", "false", "for", 
-  "function", "if", "in", "local", "nil", "not", "or", "repeat", 
+  "and", "break", "do", "else", "elseif", "end", "false", "for",
+  "function", "if", "in", "local", "nil", "not", "or", "repeat",
   "return", "then", "true", "until", "while",
   -- Reserved by Lynput
-  "inputsSet", "gpad", "gpadDeadZone", "id", "remove", "attachGamepad",
+  "inputsSet", "chordsSet", "chordInput", "gpad", "gpadDeadZone", "id", "remove", "attachGamepad",
   "bind", "unbind", "unbindAll", "removeAction", "update"
 }
 
 Lynput.s_reservedCharacters = {
   "+", "-", "*", "/", "%", "^", "#", "==", "~=", "<=", ">=", "<", ">",
-  "=", "(", ")", "{", "}", "[", "]", ";", ":", ",", ".", "..", "..."  
+  "=", "(", ")", "{", "}", "[", "]", ";", ":", ",", ".", "..", "..."
 }
 
 ----------------
@@ -50,7 +51,7 @@ Lynput.s_gamepadButtons = {
   ["back"]="G_BACK", ["guide"]="G_GUIDE", ["start"]="G_START",
   ["leftstick"]="G_LEFTSTICK", ["rightstick"]="G_RIGHTSTICK",
   ["leftshoulder"]="G_LB", ["rightshoulder"]="G_RB",
-  ["dpup"]="G_DPAD_UP", ["dpdown"]="G_DPAD_DOWN", 
+  ["dpup"]="G_DPAD_UP", ["dpdown"]="G_DPAD_DOWN",
   ["dpleft"]="G_DPAD_LEFT", ["dpright"]="G_DPAD_RIGHT"
 }
 
@@ -72,11 +73,14 @@ function Lynput.new()
   local self = setmetatable({}, Lynput)
   -- Maps Lynput inputs and states to actions, inputsSet[state][action]
   self.inputsSet = {}
+  -- Maps Lynput chords and states to actions, chordsSet[state][action]
+  self.chordsSet = {}
+  self.chordInputs = {}
 
   self.gpad = nil
   -- TODO: Different deadzones for joysticks and triggers
   self.gpadDeadZone = 30
-  
+
   self.id = tostring(Lynput.s_idCount)
   Lynput.s_lynputs[self.id] = self
   Lynput.s_idCount = Lynput.s_idCount + 1
@@ -116,7 +120,7 @@ local function _isActionValid(action)
   if type(action) ~= "string" then
     return false
   end -- if not string
-  
+
   for _, reservedName in ipairs(Lynput.s_reservedNames) do
     if reservedName == action then
       return false
@@ -132,15 +136,80 @@ local function _isActionValid(action)
   return true
 end
 
+local function _isInputValid(input)
+  local inputValid = false
+  local inputs = {}
+
+  if(string.match(input, chordMatchExpression))then
+    for match in string.gmatch(input, chordMatchExpression)do
+      table.insert(inputs, match)
+    end
+  else
+    table.insert(inputs, input)
+  end
+
+  -- Process input
+  for _,input in pairs(inputs) do
+    if input == "any" then
+      if(#inputs > 1)then
+        inputValid = false
+      else
+        inputValid = true
+      end
+
+      return inputValid
+    end -- if input == any
+
+    for _, button in pairs(Lynput.s_mouseButtons) do
+      if button == input then
+        inputValid = true
+        if #inputs == 1 then
+          return inputValid
+        end
+        break
+      end -- if button == input
+    end -- for each Lynput mouse button
+
+    for _, button in pairs(Lynput.s_gamepadButtons) do
+      if button == input then
+        inputValid = true
+        if #inputs == 1 then
+          return inputValid
+        end
+        break
+      end -- if button == input
+    end -- for each Lynput gamepad button
+
+    for _, axis in pairs(Lynput.s_gamepadAxes) do
+      if axis == input then
+        inputValid = true
+        if #inputs == 1 then
+          return inputValid
+        end
+        break
+      end -- if axis == input
+    end -- for each Lynput gamepad axis
+
+    if(not inputValid)then
+      inputValid = pcall(love.keyboard.getScancodeFromKey, input)
+    end
+
+    if(not inputValid)then
+      break
+    end
+  end
+  -- TODO: Touch screen
+  return inputValid
+end
 
 local function _isCommandValid(command)
   local stateValid, inputValid = false, false
   local state, input = string.match(command, "(.+)%s(.+)")
-  
+
   if not state or not input then
-    goto exit
+    return stateValid and inputValid, state, input
   end -- if state or input are nil
-  
+
   -- Process state
   stateValid =
     state == "release" or
@@ -154,7 +223,7 @@ local function _isCommandValid(command)
     max = tonumber(max)
 
     if not min or not max then
-      goto exit
+      return stateValid and inputValid, state, input
     end -- if min or max are nil
 
     stateValid =
@@ -163,42 +232,10 @@ local function _isCommandValid(command)
       max <= 100
   end -- if state is not meant for buttons
 
-  -- Process input
-  if input == "any" then
-    inputValid = true
-    goto exit
-  end -- if input == any
-  
-  for _, button in pairs(Lynput.s_mouseButtons) do
-    if button == input then
-      inputValid = true
-      goto exit
-    end -- if button == input
-  end -- for each Lynput mouse button
-  
-  for _, button in pairs(Lynput.s_gamepadButtons) do
-    if button == input then
-      inputValid = true
-      goto exit
-    end -- if button == input
-  end -- for each Lynput gamepad button
-  
-  for _, axis in pairs(Lynput.s_gamepadAxes) do
-    if axis == input then
-      inputValid = true
-      goto exit
-    end -- if axis == input
-  end -- for each Lynput gamepad axis
-
-  -- TODO: Touch screen
-  
-  inputValid = pcall(love.keyboard.getScancodeFromKey, input)
-
-  ::exit::
+  inputValid = _isInputValid(input)
 
   return stateValid and inputValid, state, input
 end
-
 
 function Lynput:remove()
   Lynput.s_lynputs[self.id] = nil
@@ -209,7 +246,7 @@ end
 -- @param gamepad is a Lynput gamepad string name (e.g., "GPAD_1", "GPAD_2", ..., "GPAD_N")
 function Lynput:attachGamepad(gamepad)
   -- TODO: More code, this needs to check if the parameter given is like expected
-  
+
   self.gpad = gamepad
 end
 
@@ -227,14 +264,14 @@ function Lynput:getAxis(axis)
 end
 
 
-function Lynput:bind(action, commands)  
+function Lynput:bind(action, commands)
   -- Type checking for argument #1
   assert(
     type(action) == "string",
     "bad argument #1 to 'Lynput:bind' (string expected, got " .. type(action) .. ")" ..
       "\nCheck the stack traceback to know where the invalid arguments have been passed"
   )
-  
+
   -- Transforms 1 command to a table
   if type(commands) ~= "table" then
     local command = commands
@@ -280,11 +317,24 @@ function Lynput:bind(action, commands)
       self[action] = false
     end -- if action not set
 
-    if not self.inputsSet[input] then
-      self.inputsSet[input] = {}
-    end -- if input hasn't already been set
+    if(not string.match(input, ".+%+.+"))then
+      if not self.inputsSet[input] then
+        self.inputsSet[input] = {}
+      end -- if input hasn't already been set
 
-    self.inputsSet[input][state] = action
+      self.inputsSet[input][state] = action
+    else
+      if not self.chordsSet[input] then
+        self.chordsSet[input] = {}
+      end
+
+      self.chordsSet[input][state] = action
+      self.chordInputs[state] = {}
+
+      for chordInput in string.gmatch(input, chordMatchExpression)do
+        self.chordInputs[state][chordInput] = false
+      end
+    end
   end -- for each command
 end
 
@@ -296,7 +346,7 @@ function Lynput:unbind(action, commands)
     "bad argument #1 to 'Lynput:unbind' (string expected, got " .. type(action) .. ")" ..
       "\nCheck the stack traceback to know where the invalid arguments have been passed"
   )
-  
+
   -- Transforms 1 command to a table
   if type(commands) ~= "table" then
     local command = commands
@@ -313,37 +363,51 @@ function Lynput:unbind(action, commands)
 	"\nCheck the stack traceback to know where the invalid arguments have been passed"
     )
   end -- for each element in commands table
-  
+
   -- Process command
   for _, command in ipairs(commands) do
     -- Is action set?
     -- FIXME: Exception when indexing nil values are not being handled, fix everywhere
     assert(
       self[action] ~= nil,
-      "Could not unbind command->" .. command .. 
+      "Could not unbind command->" .. command ..
 	"  to action->" .. action .. ", the action is not set."
     )
     -- Is command set?
     local state, input = string.match(command, "(.+)%s(.+)")
     assert(
       self.inputsSet[input][state],
-      "Could not unbind command->" .. command .. 
+      "Could not unbind command->" .. command ..
 	"  to action->" .. action .. ", the command is not set."
     )
-    
-    self.inputsSet[input][state] = nil
-    local inputStates = self.inputsSet[input]
 
-    local statesNum = 0
-    for state, _ in pairs(self.inputsSet[input]) do
-      statesNum = statesNum + 1
-    end -- for each state
+    if(not string.match(input, chordMatchExpression)) then
+      self.inputsSet[input][state] = nil
 
-    if statesNum == 0 then
-      self.inputsSet[input] = nil
-    end -- if there are no more states set
+      local statesNum = 0
+      for state, _ in pairs(self.inputsSet[input]) do
+        statesNum = statesNum + 1
+      end -- for each state
 
-    self[action] = false
+      if statesNum == 0 then
+        self.inputsSet[input] = nil
+      end -- if there are no more states set
+
+      self[action] = false
+    else
+      self.chordsSet[input][state] = nil
+
+      local statesNum = 0
+      for state, _ in pairs(self.chordsSet[input]) do
+        statesNum = statesNum + 1
+      end -- for each state
+
+      if statesNum == 0 then
+        self.chordsSet[input] = nil
+      end -- if there are no more states set
+
+      self[action] = false
+    end
   end -- for each command
 end
 
@@ -355,7 +419,7 @@ function Lynput:unbindAll(action)
     "bad argument #1 to 'Lynput:unbindAll' (string expected, got " .. type(action) .. ")" ..
       "\nCheck the stack traceback to know where the invalid arguments have been passed"
   )
-  
+
   -- Is action set?
   assert(
     self[action] ~= nil,
@@ -366,11 +430,17 @@ function Lynput:unbindAll(action)
   for inputSet, states in pairs(self.inputsSet) do
     for state, actionSet in pairs(states) do
       if actionSet == action then
-	self.inputsSet[inputSet][state] = nil
+	     self.inputsSet[inputSet][state] = nil
       end -- if actionSet == action
     end -- for each inputSet state
   end -- for each input set
-  
+  for chordSet, states in pairs(self.chordsSet) do
+    for state, actionSet in pairs(states) do
+      if actionSet == action then
+        self.chordsSet[chordSet][state] = nil
+      end -- if actionSet == action
+    end -- for each chordSet state
+  end -- for each input set
   self[action] = false
 end
 
@@ -382,14 +452,14 @@ function Lynput:removeAction(action)
     "bad argument #1 to 'Lynput:removeAction' (string expected, got " .. type(action) .. ")" ..
       "\nCheck the stack traceback to know where the invalid arguments have been passed"
   )
-  
+
   -- Is action set?
   assert(
     self[action] ~= nil,
     "Could not remove action->" .. action ..
       ", this action does not exist."
   )
-  
+
   self:unbindAll(action)
   self[action] = nil
 end
@@ -401,17 +471,35 @@ function Lynput:update(dt)
   for _, states in pairs(self.inputsSet) do
     for state, actionSet in pairs(states) do
       if state == "press" or state == "release" then
-	self[actionSet] = false
+	     self[actionSet] = false
       end -- if state ~= hold
     end -- for each state
   end -- for each input set
+
+  for _, states in pairs(self.chordsSet) do
+    for state, actionSet in pairs(states) do
+      if state == "press" or state == "release" then
+       self[actionSet] = false
+      end -- if state ~= hold
+    end -- for each state
+  end -- for each input set
+
+-- chordsSet[chord][actionState][inputKey]
+  for state,inputs in pairs(self.chordInputs) do
+    for input,_ in pairs(inputs) do
+      if(state == 'press' or state == 'release')then
+        self.chordInputs[state][input] = false
+      end
+    end
+  end
 
   if Lynput[self.gpad] then
     for loveAxis, lynputAxis in pairs(Lynput.s_gamepadAxes) do
       if self.inputsSet[lynputAxis] then
 	local val = Lynput[self.gpad]:getGamepadAxis(loveAxis) * 100
-	
+
 	for interval, action in pairs(self.inputsSet[lynputAxis]) do
+    if(self[action])then goto continue end
 	  local min, max = string.match(interval, "(.+)%:(.+)")
 	  min = tonumber(min)
 	  max = tonumber(max)
@@ -420,67 +508,78 @@ function Lynput:update(dt)
 	  else
 	    self[action] = false
 	  end -- if val is in interval
+    ::continue::
 	end -- for each interval
       end -- if the axis is set
     end -- for each axis
   end -- if the gamepad has been added
 end
 
+local function setInputState(lynput, input, inputAction, desiredState)
+  if lynput.inputsSet[input] then
+      if lynput.inputsSet[input][inputAction] then
+        local action = lynput.inputsSet[input][inputAction]
+        lynput[action] = desiredState
+      end -- if inputAction input (e.g. press_key) is set
+    end -- if input set
+end
+
+local function setChordState(lynput, input, inputAction, desiredState)
+  for action, _ in pairs(lynput.chordInputs) do
+    if(action == inputAction) then
+      lynput.chordInputs[action][input] = desiredState
+    end
+  end -- for each registered action
+
+  for chord, actions in pairs(lynput.chordsSet) do
+    if(string.match(chord, input))then
+      local cumulativeState = desiredState
+      for actionState, _ in pairs(actions) do
+        for chordInput in string.gmatch(chord, chordMatchExpression) do
+          print(chordInput, lynput.chordInputs[inputAction][chordInput])
+          if(not (lynput.chordInputs[inputAction][chordInput] == desiredState))then
+            cumulativeState = not desiredState
+            break
+          end
+        end
+
+        if(lynput.chordsSet[chord][inputAction])then
+          local action = lynput.chordsSet[chord][inputAction]
+          lynput[action] = cumulativeState
+        end
+      end
+    end -- if chord contains input
+  end -- for each registered chord
+end
 
 ---------------------------------
 -- KEYBOARD CALLBACKS
 ---------------------------------
 function Lynput.onkeypressed(key)
   for _, lynput in pairs(Lynput.s_lynputs) do
-    if lynput.inputsSet["any"] then
-      if lynput.inputsSet["any"]["press"] then
-	local action = lynput.inputsSet["any"]["press"]
-	lynput[action] = true
-      end -- if press_any is set
-      if lynput.inputsSet["any"]["hold"] then
-	local action = lynput.inputsSet["any"]["hold"]
-	lynput[action] = true
-      end -- if hold_any is set
-    end -- if "any" is set
+    setInputState(lynput, 'any', 'press', true)
+    setInputState(lynput, 'any', 'hold', true)
 
-    if lynput.inputsSet[key] then
-      if lynput.inputsSet[key]["press"] then
-	local action = lynput.inputsSet[key]["press"]
-	lynput[action] = true
-      end -- if press_key is set
-      if lynput.inputsSet[key]["hold"] then
-	local action = lynput.inputsSet[key]["hold"]
-	lynput[action] = true
-      end -- if hold_key is set      
-    end -- if key set
+    setInputState(lynput, key, 'press', true)
+    setInputState(lynput, key, 'hold', true)
+
+    setChordState(lynput, key, 'press', true)
+    setChordState(lynput, key, 'hold', true)
   end -- for each lynput
 end
 
 
 function Lynput.onkeyreleased(key)
   for _, lynput in pairs(Lynput.s_lynputs) do
-    if lynput.inputsSet["any"] then
-      if lynput.inputsSet["any"]["release"] then
-	local action = lynput.inputsSet["any"]["release"]
-	lynput[action] = true
-      end -- if release_any is set
-      if lynput.inputsSet["any"]["hold"] then
-	local action = lynput.inputsSet["any"]["hold"]
-	lynput[action] = false
-      end -- if hold_any is set
-    end -- if "any" is set
-    
-    if lynput.inputsSet[key] then
-      if lynput.inputsSet[key]["release"] then
-	local action = lynput.inputsSet[key]["release"]
-	lynput[action] = true
-      end -- if release_key is set
-      if lynput.inputsSet[key]["hold"] then
-	local action = lynput.inputsSet[key]["hold"]
-	lynput[action] = false
-      end -- if hold_key is set
-    end -- if key is set
-  end -- for each lynput
+    setInputState(lynput, 'any', 'release', true)
+    setInputState(lynput, 'any', 'hold', false)
+
+    setInputState(lynput, key, 'release', true)
+    setInputState(lynput, key, 'hold', false)
+
+    setChordState(lynput, key, 'release', true)
+    setChordState(lynput, key, 'hold', false)
+  end
 end
 
 
@@ -492,27 +591,14 @@ function Lynput.onmousepressed(button)
   button = Lynput.s_mouseButtons[tostring(button)]
   -- Process button
   for _, lynput in pairs(Lynput.s_lynputs) do
-    if lynput.inputsSet["any"] then
-      if lynput.inputsSet["any"]["press"] then
-	local action = lynput.inputsSet["any"]["press"]
-	lynput[action] = true
-      end -- if press_any is set
-      if lynput.inputsSet["any"]["hold"] then
-	local action = lynput.inputsSet["any"]["hold"]
-	lynput[action] = true
-      end -- if hold_any is set
-    end -- if "any" is set
-    
-    if lynput.inputsSet[button] then
-      if lynput.inputsSet[button]["press"] then
-	local action = lynput.inputsSet[button]["press"]
-	lynput[action] = true
-      end -- if press_button is set
-      if lynput.inputsSet[button]["hold"] then
-	local action = lynput.inputsSet[button]["hold"]
-	lynput[action] = true
-      end -- if hold_button is set
-    end -- if button is set
+    setInputState(lynput, 'any', 'press', true)
+    setInputState(lynput, 'any', 'hold', true)
+
+    setInputState(lynput, button, 'press', true)
+    setInputState(lynput, button, 'hold', true)
+
+    setChordState(lynput, button, 'press', true)
+    setChordState(lynput, button, 'hold', true)
   end -- for each lynput
 end
 
@@ -522,27 +608,14 @@ function Lynput.onmousereleased(button)
   button = Lynput.s_mouseButtons[tostring(button)]
   -- Process button
   for _, lynput in pairs(Lynput.s_lynputs) do
-    if lynput.inputsSet["any"] then
-      if lynput.inputsSet["any"]["release"] then
-	local action = lynput.inputsSet["any"]["release"]
-	lynput[action] = true
-      end -- if release_any is set
-      if lynput.inputsSet["any"]["hold"] then
-	local action = lynput.inputsSet["any"]["hold"]
-	lynput[action] = false
-      end -- if hold_any is set
-    end -- if "any" is set
-    
-    if lynput.inputsSet[button] then
-      if lynput.inputsSet[button]["release"] then
-	local action = lynput.inputsSet[button]["release"]
-	lynput[action] = true
-      end -- if press_button is set
-      if lynput.inputsSet[button]["hold"] then
-	local action = lynput.inputsSet[button]["hold"]
-	lynput[action] = false
-      end -- if hold_button is set
-    end -- if button is set
+    setInputState(lynput, 'any', 'release', true)
+    setInputState(lynput, 'any', 'hold', false)
+
+    setInputState(lynput, button, 'release', true)
+    setInputState(lynput, button, 'hold', false)
+
+    setChordState(lynput, button, 'release', true)
+    setChordState(lynput, button, 'hold', false)
   end -- for each lynput
 end
 
@@ -557,28 +630,14 @@ function Lynput.ongamepadpressed(gamepadID, button)
   for _, lynput in pairs(Lynput.s_lynputs) do
     if lynput.gpad then
       if Lynput[lynput.gpad]:getID() == gamepadID then
-	if lynput.inputsSet["any"] then
-	  if lynput.inputsSet["any"]["press"] then
-	    local action = lynput.inputsSet["any"]["press"]
-	    lynput[action] = true
-	  end -- if press_any is set
-	  if lynput.inputsSet["any"]["hold"] then
-	    local action = lynput.inputsSet["any"]["hold"]
-	    lynput[action] = true
-	  end -- if hold_any is set
-	end -- if "any" is set
+      setInputState(lynput, 'any', 'press', true)
+      setInputState(lynput, 'any', 'hold', true)
 
-	
-	if lynput.inputsSet[button] then
-	  if lynput.inputsSet[button]["press"] then
-	    local action = lynput.inputsSet[button]["press"]
-	    lynput[action] = true
-	  end -- if press_button is set
-	  if lynput.inputsSet[button]["hold"] then
-	    local action = lynput.inputsSet[button]["hold"]
-	    lynput[action] = true
-	  end -- if hold_button is set
-	end -- if button is set
+	    setInputState(lynput, button, 'press', true)
+      setInputState(lynput, button, 'hold', true)
+
+      setChordState(lynput, button, 'press', true)
+      setChordState(lynput, button, 'hold', true)
       end -- if gamepad is set
     end -- if lynput has a gamepad attached
   end -- for each lynput
@@ -592,27 +651,14 @@ function Lynput.ongamepadreleased(gamepadID, button)
   for _, lynput in pairs(Lynput.s_lynputs) do
     if lynput.gpad then
       if Lynput[lynput.gpad]:getID() == gamepadID then
-	if lynput.inputsSet["any"] then
-	  if lynput.inputsSet["any"]["release"] then
-	    local action = lynput.inputsSet["any"]["release"]
-	    lynput[action] = true
-	  end -- if release_any is set
-	  if lynput.inputsSet["any"]["hold"] then
-	    local action = lynput.inputsSet["any"]["hold"]
-	    lynput[action] = false
-	  end -- if hold_any is set
-	end -- if "any" is set
-	
-	if lynput.inputsSet[button] then
-	  if lynput.inputsSet[button]["release"] then
-	    local action = lynput.inputsSet[button]["release"]
-	    lynput[action] = true
-	  end -- if release_button is set
-	  if lynput.inputsSet[button]["hold"] then
-	    local action = lynput.inputsSet[button]["hold"]
-	    lynput[action] = false
-	  end -- if hold_button is set
-	end -- if button is set
+	      setInputState(lynput, 'any', 'release', true)
+        setInputState(lynput, 'any', 'hold', false)
+
+        setInputState(lynput, button, 'release', true)
+        setInputState(lynput, button, 'hold', false)
+
+        setChordState(lynput, button, 'release', true)
+        setChordState(lynput, button, 'hold', false)
       end -- if gamepad is set
     end -- if lynput has a gamepad attached
   end -- for each lynput
@@ -627,7 +673,7 @@ function Lynput.ongamepadadded(gamepad)
     if Lynput[gpad]:getID() == gamepadID then
       return
     end -- if gamepadID is already assigned
-    
+
     i = i +1
     gpad = "GPAD_" .. i
   end -- while gpad exists
