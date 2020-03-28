@@ -26,8 +26,8 @@ Lynput.s_count = 0
 
 Lynput.s_reservedNames = {
   -- Reserved by Lua
-  "and", "break", "do", "else", "elseif", "end", "false", "for", 
-  "function", "if", "in", "local", "nil", "not", "or", "repeat", 
+  "and", "break", "do", "else", "elseif", "end", "false", "for",
+  "function", "if", "in", "local", "nil", "not", "or", "repeat",
   "return", "then", "true", "until", "while",
   -- Reserved by Lynput
   "inputsSet", "chordsSet", "chordInput", "gpad", "gpadDeadZone", "id", "remove", "attachGamepad",
@@ -36,7 +36,7 @@ Lynput.s_reservedNames = {
 
 Lynput.s_reservedCharacters = {
   "+", "-", "*", "/", "%", "^", "#", "==", "~=", "<=", ">=", "<", ">",
-  "=", "(", ")", "{", "}", "[", "]", ";", ":", ",", ".", "..", "..."  
+  "=", "(", ")", "{", "}", "[", "]", ";", ":", ",", ".", "..", "..."
 }
 
 ----------------
@@ -51,7 +51,7 @@ Lynput.s_gamepadButtons = {
   ["back"]="G_BACK", ["guide"]="G_GUIDE", ["start"]="G_START",
   ["leftstick"]="G_LEFTSTICK", ["rightstick"]="G_RIGHTSTICK",
   ["leftshoulder"]="G_LB", ["rightshoulder"]="G_RB",
-  ["dpup"]="G_DPAD_UP", ["dpdown"]="G_DPAD_DOWN", 
+  ["dpup"]="G_DPAD_UP", ["dpdown"]="G_DPAD_DOWN",
   ["dpleft"]="G_DPAD_LEFT", ["dpright"]="G_DPAD_RIGHT"
 }
 
@@ -80,7 +80,7 @@ function Lynput.new()
   self.gpad = nil
   -- TODO: Different deadzones for joysticks and triggers
   self.gpadDeadZone = 30
-  
+
   self.id = tostring(Lynput.s_idCount)
   Lynput.s_lynputs[self.id] = self
   Lynput.s_idCount = Lynput.s_idCount + 1
@@ -120,7 +120,7 @@ local function _isActionValid(action)
   if type(action) ~= "string" then
     return false
   end -- if not string
-  
+
   for _, reservedName in ipairs(Lynput.s_reservedNames) do
     if reservedName == action then
       return false
@@ -159,7 +159,7 @@ local function _isInputValid(input)
 
       return inputValid
     end -- if input == any
-    
+
     for _, button in pairs(Lynput.s_mouseButtons) do
       if button == input then
         inputValid = true
@@ -169,7 +169,7 @@ local function _isInputValid(input)
         break
       end -- if button == input
     end -- for each Lynput mouse button
-    
+
     for _, button in pairs(Lynput.s_gamepadButtons) do
       if button == input then
         inputValid = true
@@ -179,7 +179,7 @@ local function _isInputValid(input)
         break
       end -- if button == input
     end -- for each Lynput gamepad button
-    
+
     for _, axis in pairs(Lynput.s_gamepadAxes) do
       if axis == input then
         inputValid = true
@@ -205,11 +205,11 @@ end
 local function _isCommandValid(command)
   local stateValid, inputValid = false, false
   local state, input = string.match(command, "(.+)%s(.+)")
-  
+
   if not state or not input then
     return stateValid and inputValid, state, input
   end -- if state or input are nil
-  
+
   -- Process state
   stateValid =
     state == "release" or
@@ -246,7 +246,7 @@ end
 -- @param gamepad is a Lynput gamepad string name (e.g., "GPAD_1", "GPAD_2", ..., "GPAD_N")
 function Lynput:attachGamepad(gamepad)
   -- TODO: More code, this needs to check if the parameter given is like expected
-  
+
   self.gpad = gamepad
 end
 
@@ -264,14 +264,14 @@ function Lynput:getAxis(axis)
 end
 
 
-function Lynput:bind(action, commands)  
+function Lynput:bind(action, commands)
   -- Type checking for argument #1
   assert(
     type(action) == "string",
     "bad argument #1 to 'Lynput:bind' (string expected, got " .. type(action) .. ")" ..
       "\nCheck the stack traceback to know where the invalid arguments have been passed"
   )
-  
+
   -- Transforms 1 command to a table
   if type(commands) ~= "table" then
     local command = commands
@@ -346,7 +346,7 @@ function Lynput:unbind(action, commands)
     "bad argument #1 to 'Lynput:unbind' (string expected, got " .. type(action) .. ")" ..
       "\nCheck the stack traceback to know where the invalid arguments have been passed"
   )
-  
+
   -- Transforms 1 command to a table
   if type(commands) ~= "table" then
     local command = commands
@@ -363,24 +363,24 @@ function Lynput:unbind(action, commands)
 	"\nCheck the stack traceback to know where the invalid arguments have been passed"
     )
   end -- for each element in commands table
-  
+
   -- Process command
   for _, command in ipairs(commands) do
     -- Is action set?
     -- FIXME: Exception when indexing nil values are not being handled, fix everywhere
     assert(
       self[action] ~= nil,
-      "Could not unbind command->" .. command .. 
+      "Could not unbind command->" .. command ..
 	"  to action->" .. action .. ", the action is not set."
     )
     -- Is command set?
     local state, input = string.match(command, "(.+)%s(.+)")
     assert(
       self.inputsSet[input][state],
-      "Could not unbind command->" .. command .. 
+      "Could not unbind command->" .. command ..
 	"  to action->" .. action .. ", the command is not set."
     )
-    
+
     if(not string.match(input, chordMatchExpression)) then
       self.inputsSet[input][state] = nil
 
@@ -419,7 +419,7 @@ function Lynput:unbindAll(action)
     "bad argument #1 to 'Lynput:unbindAll' (string expected, got " .. type(action) .. ")" ..
       "\nCheck the stack traceback to know where the invalid arguments have been passed"
   )
-  
+
   -- Is action set?
   assert(
     self[action] ~= nil,
@@ -452,14 +452,14 @@ function Lynput:removeAction(action)
     "bad argument #1 to 'Lynput:removeAction' (string expected, got " .. type(action) .. ")" ..
       "\nCheck the stack traceback to know where the invalid arguments have been passed"
   )
-  
+
   -- Is action set?
   assert(
     self[action] ~= nil,
     "Could not remove action->" .. action ..
       ", this action does not exist."
   )
-  
+
   self:unbindAll(action)
   self[action] = nil
 end
@@ -497,8 +497,9 @@ function Lynput:update(dt)
     for loveAxis, lynputAxis in pairs(Lynput.s_gamepadAxes) do
       if self.inputsSet[lynputAxis] then
 	local val = Lynput[self.gpad]:getGamepadAxis(loveAxis) * 100
-	
+
 	for interval, action in pairs(self.inputsSet[lynputAxis]) do
+    if(self[action])then goto continue end
 	  local min, max = string.match(interval, "(.+)%:(.+)")
 	  min = tonumber(min)
 	  max = tonumber(max)
@@ -507,6 +508,7 @@ function Lynput:update(dt)
 	  else
 	    self[action] = false
 	  end -- if val is in interval
+    ::continue::
 	end -- for each interval
       end -- if the axis is set
     end -- for each axis
@@ -671,7 +673,7 @@ function Lynput.ongamepadadded(gamepad)
     if Lynput[gpad]:getID() == gamepadID then
       return
     end -- if gamepadID is already assigned
-    
+
     i = i +1
     gpad = "GPAD_" .. i
   end -- while gpad exists
